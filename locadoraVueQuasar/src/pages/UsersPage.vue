@@ -1,5 +1,22 @@
 <template>
   <q-page padding>
+    <div class="row items-center q-mx-auto text-h5">
+      <div>
+        Usuários
+        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm"/>
+      </div>
+
+      <q-input v-model="text" label="Pesquisar..." class="q-ml-lg col-md-8">
+        <template v-slot:append>
+          <q-icon v-if="text !== ''" name="close" @click="text = ''" class="cursor-pointer" />
+        </template>
+
+        <template v-slot:after>
+          <q-btn round dense flat icon="send" />
+        </template>
+      </q-input>
+    </div>
+
     <TableComponent
     :title="title"
     :rows="rows"
