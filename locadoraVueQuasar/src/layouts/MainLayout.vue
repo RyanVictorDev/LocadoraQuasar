@@ -1,6 +1,6 @@
 <template>
   <q-layout view="lHh Lpr lFf">
-    <q-header elevated class="bg-cyan-10">
+    <q-header elevated class="bgPadrao">
       <q-toolbar>
         <q-btn
           flat
@@ -25,7 +25,7 @@
       :width="250"
       :breakpoint="500"
       bordered
-      :class="$q.dark.isActive ? 'bg-teal-9' : 'bg-cyan-10'"
+      :class="$q.dark.isActive ? 'bg-teal-9' : 'bgPadrao'"
     >
       <q-list>
         <q-item-label
@@ -103,5 +103,9 @@ const miniState = ref(true)
 <style>
   .whiteFont{
     color: aliceblue;
+  }
+
+  .bgPadrao{
+    background-color: #2C3D47;
   }
 </style>
