@@ -1,24 +1,36 @@
 import { boot } from 'quasar/wrappers'
 import axios from 'axios'
 
-// Be careful when using SSR for cross-request state pollution
-// due to creating a Singleton instance here;
-// If any client changes this (global) instance, it might be a
-// good idea to move this instance creation inside of the
-// "export default () => {}" function below (which runs individually
-// for each client)
-const api = axios.create({ baseURL: 'https://api.example.com' })
+let api;
+
+axios.post("https://livraria-api.altislabtech.com.br/auth/login", {
+    username: "admin",
+    password: "12345678"
+})
+.then(response => {
+    const token = response.data.token;
+
+    api = axios.create({
+      baseURL: 'https://livraria-api.altislabtech.com.br',
+      headers: {
+        'Authorization': `Bearer ${token}`
+      }
+    });
+})
+.catch(error => {
+    console.error('Erro ao fazer login e obter o token:', error);
+});
 
 export default boot(({ app }) => {
-  // for use inside Vue files (Options API) through this.$axios and this.$api
+  // Usar dentro de arquivos Vue (Options API) através de this.$axios e this.$api
 
   app.config.globalProperties.$axios = axios
-  // ^ ^ ^ this will allow you to use this.$axios (for Vue Options API form)
-  //       so you won't necessarily have to import axios in each vue file
+  // ^ ^ ^ Isso permitirá o uso de this.$axios (para a API de opções Vue)
+  //       para que não seja necessário importar axios em cada arquivo Vue
 
   app.config.globalProperties.$api = api
-  // ^ ^ ^ this will allow you to use this.$api (for Vue Options API form)
-  //       so you can easily perform requests against your app's API
-})
+  // ^ ^ ^ Isso permitirá o uso de this.$api (para a API de opções Vue)
+  //       para que você possa facilmente realizar solicitações à API do seu app
+});
 
-export { api }
+export { api };

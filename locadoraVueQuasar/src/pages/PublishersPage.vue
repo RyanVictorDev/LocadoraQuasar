@@ -1,8 +1,7 @@
 <template>
-
   <q-page padding>
     <div class="row items-center q-mx-auto text-h5">
-      <div>
+      <div class="text-weight-bold">
         Editoras
         <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm"/>
       </div>
@@ -19,39 +18,45 @@
     </div>
 
     <TableComponent
-    :title="title"
-    :rows="rows"
-    :columns="columns"
+      :title="title"
+      :rows="rows"
+      :columns="columns"
+      :icon="icon"
     />
   </q-page>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
 
 defineOptions({
   name: 'PublishersPage',
 });
 
-const title = ''
+const text = ref('');
+
+const title = '';
 
 const columns = [
-  { name: 'publisher', required: true, label: 'Nome da Editora', align: 'center', field: row => row.name, format: val => `${val}`},
-  { name: 'actions', align: 'center', label: 'Ações', field: 'actions'},
-]
+  { name: 'publisher', required: true, label: 'Nome da Editora', align: 'center', field: row => row.name, format: val => `${val}` },
+  { name: 'actions', align: 'center', label: 'Ações', field: 'actions' },
+];
 
 const rows = [
   {
     name: 'Editorando',
-    actions: 'Ação',
+    actions: '',
   },
   {
     name: 'Editora Show',
-    actions: 'Ação',
+    actions: '',
   },
   {
     name: 'Saraijavas',
-    actions: 'Ação',
+    actions: '',
   },
-]
+];
+
+const icon = 'delete';
 </script>

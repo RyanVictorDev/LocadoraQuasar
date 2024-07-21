@@ -27,20 +27,34 @@
       bordered
       :class="$q.dark.isActive ? 'bg-teal-9' : 'bgPadrao'"
     >
-      <q-list>
-        <q-item-label
-          header
-          class="text-h5 whiteFont"
-        >
-          Admin
-        </q-item-label>
+      <div class="flex-column full-height">
+        <q-list>
+          <q-item-label
+            header
+            class="text-h5 whiteFont"
+          >
+            Admin
+          </q-item-label>
 
-        <SidebarComponent
-          v-for="link in linksList"
-          :key="link.title"
-          v-bind="link"
-        />
-      </q-list>
+          <SidebarComponent
+            v-for="link in linksList"
+            :key="link.title"
+            v-bind="link"
+          />
+        </q-list>
+
+        <div class="flex-grow"></div>
+
+        <q-item clickable exact class="q-mx-auto q-mb-sm logout">
+          <q-item-section avatar>
+            <q-icon name="logout" />
+          </q-item-section>
+
+          <q-item-section>
+            <q-item-label>Logout</q-item-label>
+          </q-item-section>
+        </q-item>
+      </div>
     </q-drawer>
 
     <q-page-container>
@@ -107,5 +121,26 @@ const miniState = ref(true)
 
   .bgPadrao{
     background-color: #2C3D47;
+  }
+
+  .q-item.q-router-link--active, .q-item--active {
+    color: #00c986;
+  }
+
+  .flex-column {
+  display: flex;
+  flex-direction: column;
+  }
+
+  .full-height {
+    height: 100%;
+  }
+
+  .flex-grow {
+    flex-grow: 1;
+  }
+
+  .logout{
+    border-radius: 10px;
   }
 </style>

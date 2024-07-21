@@ -1,7 +1,7 @@
 <template>
   <q-page padding>
     <div class="row items-center q-mx-auto text-h5">
-      <div>
+      <div class="text-weight-bold">
         Livros
         <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm"/>
       </div>
