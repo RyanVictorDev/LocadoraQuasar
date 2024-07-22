@@ -11,14 +11,21 @@
   >
     <template v-slot:body-cell-actions="props">
       <q-td :props="props">
-        <q-btn flat round :icon="icon"/>
+        <q-btn
+          v-for="icon in icons"
+          :key="icon"
+          flat
+          round
+          :icon="icon"
+          @click="handleAction(props.row, icon)"
+        />
       </q-td>
     </template>
   </q-table>
 </template>
 
 <script setup>
-import { defineProps } from 'vue';
+import { defineProps, defineEmits } from 'vue';
 
 defineOptions({
   name: 'TableComponent'
@@ -28,11 +35,12 @@ const props = defineProps({
   title: String,
   rows: Array,
   columns: Array,
-  icon: String
+  icons: Array
 });
 
-const handleAction = (row) => {
-  // Adicione a lógica para a ação aqui
-  console.log('Ação na linha:', row);
+const emit = defineEmits(['action']);
+
+const handleAction = (row, icon) => {
+  emit('action', { row, icon });
 };
 </script>
