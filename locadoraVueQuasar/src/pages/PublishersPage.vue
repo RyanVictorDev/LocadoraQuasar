@@ -78,7 +78,6 @@ defineOptions({
 });
 
 const text = ref('');
-const title = '';
 
 const dialogs = ref({
   delete: {

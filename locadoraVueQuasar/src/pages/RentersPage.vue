@@ -18,47 +18,132 @@
     </div>
 
     <TableComponent
-    :title="title"
-    :rows="rows"
-    :columns="columns"
+      :title="title"
+      :rows="rows"
+      :columns="columns"
+      :icons="icons"
+      @action="handleAction"
     />
+
+    <q-dialog v-model="dialogs.delete.visible" persistent>
+      <q-card class="">
+        <q-card-section class="row items-center">
+          <q-avatar icon="delete" color="red" text-color="white" />
+          <span class="q-ml-sm">Você tem certeza que deseja excluir {{ dialogs.delete.row.name }}?</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false" />
+          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="dialogs.view.visible" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="visibility" color="blue" text-color="white" />
+          <span class="q-ml-sm">Visualizar os detalhes do locatário {{ dialogs.view.row.name }}?</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Fechar" color="primary" @click="dialogs.view.visible = false" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="dialogs.edit.visible" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="edit" color="green" text-color="white" />
+          <span class="q-ml-sm">Você tem certeza que deseja editar as informações do {{ dialogs.edit.row.name }}?</span>
+        </q-card-section>
+
+        <q-card-actions align="right">
+          <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
+          <q-btn flat label="Editar" color="primary" @click="performEditAction" />
+        </q-card-actions>
+      </q-card>
+    </q-dialog>
   </q-page>
 </template>
 
 <script setup>
-  import TableComponent from 'src/components/TableComponent.vue';
+import { ref, onMounted } from 'vue';
+import TableComponent from 'src/components/TableComponent.vue';
+import { api, authenticate } from 'src/boot/axios';
 
 defineOptions({
   name: 'RentersPage',
 });
 
-const title = ''
+const text = ref('');
+
+const dialogs = ref({
+  delete: {
+    visible: false,
+    row: null
+  },
+  view: {
+    visible: false,
+    row: null
+  },
+  edit: {
+    visible: false,
+    row: null
+  }
+});
+
 
 const columns = [
   { name: 'name', required: true, label: 'Nome do locatário', align: 'center', field: row => row.name, format: val => `${val}`},
   { name: 'email', align: 'center', label: 'Email', field: 'email'},
-  { name: 'phone', align: 'center', label: 'Telefone', field: 'phone'},
+  { name: 'telephone', align: 'center', label: 'Telefone', field: 'telephone'},
   { name: 'actions', align: 'center', label: 'Ações', field: 'actions'}
 ]
 
-const rows = [
-  {
-    name: 'João Silva',
-    email: 'joao.silva@example.com',
-    phone: '(xx) xxxxxxxxx',
-    actions: 'Ação',
-  },
-  {
-    name: 'Maria Souza',
-    email: '	maria.souza@example.com',
-    phone: '(xx) xxxxxxxxx',
-    actions: 'Ação',
-  },
-  {
-    name: 'Pedro Oliveira',
-    email: 'pedro.oliveira@example.com',
-    phone: '(xx) xxxxxxxxx',
-    actions: 'Ação',
-  },
-]
+const rows = ref([]);
+
+const getRows = () => {
+  api.get('/renter')
+    .then(response => {
+      if (Array.isArray(response.data.content)) {
+        rows.value = response.data.content;
+        console.log("Dados obtidos com sucesso");
+      } else {
+        console.error('A resposta da API não é um array:', response.data);
+        rows.value = [];
+      }
+      console.log('Resposta da API:', response.data);
+    })
+    .catch(error => {
+      console.error("Erro ao obter dados:", error);
+    });
+}
+
+onMounted(() => {
+  authenticate()
+    .then(() => {
+      getRows();
+    })
+    .catch(error => {
+      console.error('Erro na autenticação:', error);
+    });
+});
+
+const icons = ['visibility', 'edit', 'delete'];
+
+const handleAction = ({ row, icon }) => {
+  if (icon === 'delete') {
+    dialogs.value.delete.row = row;
+    dialogs.value.delete.visible = true;
+  } else if (icon === 'visibility') {
+    dialogs.value.view.row = row;
+    dialogs.value.view.visible = true;
+  } else if (icon === 'edit') {
+    dialogs.value.edit.row = row;
+    dialogs.value.edit.visible = true;
+  }
+};
 </script>
+
