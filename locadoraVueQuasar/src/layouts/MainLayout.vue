@@ -2,7 +2,6 @@
   <q-layout v-if="!log">
     <div class="q-pa-md q-mx-auto" style="max-width: 400px">
       <q-img
-        :key="mode"
         src="../assets/altislab_logo.png"
         style="height: 150px;"
         fit="scale-down"
@@ -21,7 +20,7 @@
           type="password"
           v-model="password"
           label="Senha *"
-          hint="Digite o sua senha"
+          hint="Digite a sua senha"
           lazy-rules
           :rules="[
             val => val !== null && val !== '' || 'Por favor, digite sua senha',
@@ -86,6 +85,7 @@
 
 <script setup>
 import { ref } from 'vue'
+import axios from 'axios'
 import SidebarComponent from 'src/components/SidebarComponent.vue'
 
 defineOptions({
@@ -97,12 +97,21 @@ const name = ref(null)
 const password = ref(null)
 
 const onSubmit = () => {
-  if (name.value == 'admin' && password.value == '12345678') {
-    log.value = true
-    name.value = null
-    password.value = null
+  if (name.value && password.value) {
+    axios.post("https://livraria-api.altislabtech.com.br/auth/login", {
+      username: name.value,
+      password: password.value
+    })
+    .then(response => {
+      log.value = true
+      name.value = null
+      password.value = null
+    })
+    .catch(error => {
+      alert("Algo deu errado...")
+    })
   } else {
-    alert("Algo deu errado...");
+    alert("Por favor, preencha todos os campos corretamente")
   }
 }
 

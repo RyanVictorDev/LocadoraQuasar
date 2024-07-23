@@ -12,7 +12,7 @@
         </template>
 
         <template v-slot:after>
-          <q-btn round dense flat icon="send" />
+          <q-btn round dense flat icon="search" />
         </template>
       </q-input>
     </div>
