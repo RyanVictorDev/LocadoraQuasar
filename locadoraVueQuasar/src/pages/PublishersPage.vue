@@ -3,7 +3,7 @@
     <div class="row items-center q-mx-auto text-h5">
       <div class="text-weight-bold">
         Editoras
-        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm"/>
+        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="registerAction"/>
       </div>
 
       <q-input v-model="text" label="Pesquisar..." class="q-ml-lg col-md-8">
@@ -19,34 +19,45 @@
 
     <TableComponent
       :title="title"
-      :rows="filteredRows"
+      :rows="rows"
       :columns="columns"
       :icons="icons"
       @action="handleAction"
     />
 
-    <q-dialog v-model="dialogs.delete.visible" persistent>
+    <q-dialog v-model="dialogs.register.visible" persistent>
       <q-card>
         <q-card-section class="row items-center">
-          <q-avatar icon="delete" color="red" text-color="white" />
-          <span class="q-ml-sm">Você tem certeza que deseja excluir a editora {{ dialogs.delete.row.name }}?</span>
+          <q-avatar icon="add" color="teal-10" text-color="white" />
+          <span class="q-ml-sm">Cadastrar Nova Editora</span>
+        </q-card-section>
+
+        <q-card-section>
+          <q-input v-model="dialogs.register.row.name" label="Nome da Editora" />
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false"/>
-          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction"/>
+          <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
+          <q-btn flat label="Salvar" color="primary"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
 
     <q-dialog v-model="dialogs.view.visible" persistent>
       <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="visibility" color="blue" text-color="white" />
-          <span class="q-ml-sm">Detalhes da editora {{ dialogs.view.row.name }}</span>
-          <div class="">
-            <div class="column q-mt-md">
-              <span class="q-ml-sm col">Informações: {{ editoraInfor }}</span>
+        <q-card-section class="row items-center column">
+          <div>
+            <q-avatar icon="visibility" color="blue" text-color="white" />
+            <span class="q-ml-sm text-h6">Detalhes da editora {{ dialogs.view.row.name }}</span>
+          </div>
+
+          <div class="q-ml-sm ">
+            <div class="column q-mt-md text-h6">
+              <span class="q-ml-sm col"><q-icon name="key"/> Id: {{ editoraInfor.id }}</span>
+              <span class="q-ml-sm col"><q-icon name="edit"/> Nome: {{ editoraInfor.name }}</span>
+              <span class="q-ml-sm col"><q-icon name="email"/> Email: {{ editoraInfor.email }}</span>
+              <span class="q-ml-sm col"><q-icon name="phone"/> Telefone: {{ editoraInfor.telephone }}</span>
+              <span class="q-ml-sm col"><q-icon name="language"/> Site: {{ editoraInfor.site }}</span>
             </div>
           </div>
         </q-card-section>
@@ -64,17 +75,41 @@
           <span class="q-ml-sm">Você tem certeza que deseja editar a editora {{ dialogs.edit.row.name }}?</span>
         </q-card-section>
 
+        <q-card-section>
+          <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
+            <q-input v-model="editoraInfor.name" label="Nome da Editora" filled lazy-rules/>
+            <q-input v-model="editoraInfor.email" label="Email" filled lazy-rules/>
+            <q-input v-model="editoraInfor.telephone" label="Telefone" filled lazy-rules/>
+            <q-input v-model="editoraInfor.site" label="Site" filled lazy-rules/>
+
+            <q-card-actions align="right">
+              <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
+              <q-btn flat label="Salvar" type="submit" color="primary" @click="dialogs.edit.visible = false"/>
+            </q-card-actions>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="dialogs.delete.visible" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="delete" color="red" text-color="white" />
+          <span class="q-ml-sm">Você tem certeza que deseja excluir a editora {{ dialogs.delete.row.name }}?</span>
+        </q-card-section>
+
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
-          <q-btn flat label="Editar" color="primary" @click="performEditAction" />
+          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false"/>
+          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
   </q-page>
 </template>
 
+
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
 import { api, authenticate } from 'src/boot/axios';
 
@@ -92,9 +127,19 @@ onMounted(() => {
     });
 });
 
+const registerAction = () => {
+  dialogs.value.register.visible = true;
+};
+
 const text = ref('');
 
 const dialogs = ref({
+  register: {
+    visible: false,
+    row: {
+      name: ''
+    }
+  },
   delete: {
     visible: false,
     row: null
@@ -151,21 +196,12 @@ const showMore = (id) => {
   api.get('/publisher/' + id)
     .then(response => {
       editoraInfor.value = response.data;
+      console.log(editoraInfor.value);
     })
     .catch(error => {
       console.error("Erro ao obter detalhes da editora:", error);
     });
 }
-
-// const editRow = () => {
-//   api.put('/publisher/')
-//     .then(response => {
-
-//     })
-//     .catch(error => {
-//       console.error("Erro ao obter detalhes da editora:", error);
-//     });
-// }
 
 const icons = ['visibility', 'edit', 'delete'];
 
@@ -180,6 +216,7 @@ const handleAction = ({ row, icon }) => {
   } else if (icon === 'edit') {
     dialogs.value.edit.row = row;
     dialogs.value.edit.visible = true;
+    showMore(row.id);
   }
 };
 
@@ -188,17 +225,16 @@ const performDeleteAction = () => {
   deleteRow(row.id);
 };
 
-const performEditAction = () => {
-  const { row } = dialogs.value.edit;
-  console.log(`Editando a editora:`, row);
-  dialogs.value.edit.visible = false;
+const onSubmit = () => {
+  console.log("Teste");
 };
 
-const filteredRows = computed(() => {
-  const term = text.value.toLowerCase();
-  return rows.value.filter(row => row.name.toLowerCase().includes(term));
-});
+// const filteredRows = computed(() => {
+//   const term = text.value.toLowerCase();
+//   return rows.value.filter(row => row.name.toLowerCase().includes(term));
+// });
 </script>
+
 
 <style>
 .whiteFont {

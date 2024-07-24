@@ -1,37 +1,40 @@
 <template>
-  <q-layout v-if="!log">
-    <div class="q-pa-md q-mx-auto" style="max-width: 400px">
-      <q-img
-        src="../assets/altislab_logo.png"
-        style="height: 150px;"
-        fit="scale-down"
-      />
-      <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md q-my-auto">
-        <q-input
-          filled
-          v-model="name"
-          label="Nome de usuário *"
-          hint="Digite o seu nome de usuário"
-          lazy-rules
-          :rules="[val => val && val.length > 3 || 'Usuário precisa ter mais de três letras']"
+  <q-layout v-if="!log" class="bgLayoutLogin spacer-top">
+    <div class="q-pa-lg q-mx-auto card" style="max-width: 400px;">
+      <div class="">
+          <q-img
+          src="../assets/altislab_logo.png"
+          style="height: 150px;"
+          fit="scale-down"
+          class="q-my-auto"
         />
-        <q-input
-          filled
-          type="password"
-          v-model="password"
-          label="Senha *"
-          hint="Digite a sua senha"
-          lazy-rules
-          :rules="[
-            val => val !== null && val !== '' || 'Por favor, digite sua senha',
-            val => val && val.length > 3 || 'A senha não pode ter menos que quatro caracteres'
-          ]"
-        />
-        <div>
-          <q-btn label="Login" type="submit" color="primary" />
-          <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
-        </div>
-      </q-form>
+        <q-form @submit="onSubmit" @reset="onReset" class="q-gutter-md q-my-auto spacer">
+          <q-input
+            filled
+            v-model="name"
+            label="Nome de usuário *"
+            hint="Digite o seu nome de usuário"
+            lazy-rules
+            :rules="[val => val && val.length > 3 || 'Usuário precisa ter mais de três letras']"
+          />
+          <q-input
+            filled
+            type="password"
+            v-model="password"
+            label="Senha *"
+            hint="Digite a sua senha"
+            lazy-rules
+            :rules="[
+              val => val !== null && val !== '' || 'Por favor, digite sua senha',
+              val => val && val.length > 3 || 'A senha não pode ter menos que quatro caracteres'
+            ]"
+          />
+          <div>
+            <q-btn label="Login" type="submit" color="primary" />
+            <q-btn label="Reset" type="reset" color="primary" flat class="q-ml-sm" />
+          </div>
+        </q-form>
+      </div>
     </div>
   </q-layout>
 
@@ -134,6 +137,24 @@ const miniState = ref(true)
 </script>
 
 <style>
+.bgLayoutLogin{
+  background: linear-gradient(to right, #4b8086 8%, #6be2ab 100%); 
+}
+
+.card{
+  border-radius: 5px;
+  background-color: rgb(240, 240, 240);
+  box-shadow: 2px 2px 5px 1px rgba(97, 97, 97, 0.58);
+}
+
+.spacer{
+  margin-top: 40px;
+}
+
+.spacer-top{
+  padding-top: 6%;
+}
+
 .whiteFont {
   color: aliceblue;
 }
