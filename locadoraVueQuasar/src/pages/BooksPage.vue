@@ -77,6 +77,16 @@ defineOptions({
   name: 'BooksPage',
 });
 
+onMounted(() => {
+  authenticate()
+    .then(() => {
+      getRows();
+    })
+    .catch(error => {
+      console.error('Erro na autenticação:', error);
+    });
+});
+
 const text = ref('')
 
 const dialogs = ref({
@@ -120,16 +130,6 @@ const getRows = () => {
       console.error("Erro ao obter dados:", error);
     });
 }
-
-onMounted(() => {
-  authenticate()
-    .then(() => {
-      getRows();
-    })
-    .catch(error => {
-      console.error('Erro na autenticação:', error);
-    });
-});
 
 const icons = ['bookmark', 'edit', 'delete'];
 

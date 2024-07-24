@@ -19,7 +19,7 @@
 
     <TableComponent
       :title="title"
-      :rows="rows"
+      :rows="filteredRows"
       :columns="columns"
       :icons="icons"
       @action="handleAction"
@@ -33,8 +33,8 @@
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false" />
-          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction" />
+          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false"/>
+          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -43,7 +43,12 @@
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="visibility" color="blue" text-color="white" />
-          <span class="q-ml-sm">Visualizar os detalhes da locadora {{ dialogs.view.row.name }}?</span>
+          <span class="q-ml-sm">Detalhes da editora {{ dialogs.view.row.name }}</span>
+          <div class="">
+            <div class="column q-mt-md">
+              <span class="q-ml-sm col">Informações: {{ editoraInfor }}</span>
+            </div>
+          </div>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -69,12 +74,22 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, computed } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
 import { api, authenticate } from 'src/boot/axios';
 
 defineOptions({
   name: 'PublishersPage',
+});
+
+onMounted(() => {
+  authenticate()
+    .then(() => {
+      getRows();
+    })
+    .catch(error => {
+      console.error('Erro na autenticação:', error);
+    });
 });
 
 const text = ref('');
@@ -118,15 +133,39 @@ const getRows = () => {
     });
 }
 
-onMounted(() => {
-  authenticate()
+const deleteRow = (id) => {
+  api.delete('/publisher/' + id)
     .then(() => {
-      getRows();
+      rows.value = rows.value.filter(row => row.id !== id);
+      dialogs.value.delete.visible = false;
+      console.log("Editora excluída com sucesso");
     })
     .catch(error => {
-      console.error('Erro na autenticação:', error);
+      console.error("Erro ao excluir editora:", error);
     });
-});
+}
+
+const editoraInfor = ref([]);
+
+const showMore = (id) => {
+  api.get('/publisher/' + id)
+    .then(response => {
+      editoraInfor.value = response.data;
+    })
+    .catch(error => {
+      console.error("Erro ao obter detalhes da editora:", error);
+    });
+}
+
+// const editRow = () => {
+//   api.put('/publisher/')
+//     .then(response => {
+
+//     })
+//     .catch(error => {
+//       console.error("Erro ao obter detalhes da editora:", error);
+//     });
+// }
 
 const icons = ['visibility', 'edit', 'delete'];
 
@@ -137,21 +176,52 @@ const handleAction = ({ row, icon }) => {
   } else if (icon === 'visibility') {
     dialogs.value.view.row = row;
     dialogs.value.view.visible = true;
+    showMore(row.id);
   } else if (icon === 'edit') {
     dialogs.value.edit.row = row;
     dialogs.value.edit.visible = true;
   }
 };
 
-// const performDeleteAction = () => {
-//   const { row } = dialogs.value.delete;
-//   console.log(`Excluindo a linha:`, row);
-//   dialogs.value.delete.visible = false;
-// };
+const performDeleteAction = () => {
+  const { row } = dialogs.value.delete;
+  deleteRow(row.id);
+};
 
-// const performEditAction = () => {
-//   const { row } = dialogs.value.edit;
-//   console.log(`Editando a linha:`, row);
-//   dialogs.value.edit.visible = false;
-// };
+const performEditAction = () => {
+  const { row } = dialogs.value.edit;
+  console.log(`Editando a editora:`, row);
+  dialogs.value.edit.visible = false;
+};
+
+const filteredRows = computed(() => {
+  const term = text.value.toLowerCase();
+  return rows.value.filter(row => row.name.toLowerCase().includes(term));
+});
 </script>
+
+<style>
+.whiteFont {
+  color: aliceblue;
+}
+.bgPadrao {
+  background-color: #2c3d47;
+}
+.q-item.q-router-link--active,
+.q-item--active {
+  color: #00c986;
+}
+.flex-column {
+  display: flex;
+  flex-direction: column;
+}
+.full-height {
+  height: 100%;
+}
+.flex-grow {
+  flex-grow: 1;
+}
+.logout {
+  border-radius: 10px;
+}
+</style>
