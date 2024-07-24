@@ -33,13 +33,18 @@
         </q-card-section>
 
         <q-card-section>
-          <q-input v-model="dialogs.register.row.name" label="Nome da Editora" />
-        </q-card-section>
+          <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
+            <q-input v-model="publisherToCreate.name" label="Nome da Editora" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
+            <q-input v-model="publisherToCreate.email" label="Email" filled lazy-rules/>
+            <q-input v-model="publisherToCreate.telephone" label="Telefone" filled lazy-rules/>
+            <q-input v-model="publisherToCreate.site" label="Site" filled lazy-rules/>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
-          <q-btn flat label="Salvar" color="primary"/>
-        </q-card-actions>
+            <q-card-actions align="right">
+              <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
+              <q-btn flat label="Salvar" type="submit" color="primary" @click="registerAction"/>
+            </q-card-actions>
+          </q-form>
+        </q-card-section>
       </q-card>
     </q-dialog>
 
@@ -52,7 +57,7 @@
           </div>
 
           <div class="q-ml-sm ">
-            <div class="column q-mt-md text-h6">
+            <div class="column q-mt-md">
               <span class="q-ml-sm col"><q-icon name="key"/> Id: {{ editoraInfor.id }}</span>
               <span class="q-ml-sm col"><q-icon name="edit"/> Nome: {{ editoraInfor.name }}</span>
               <span class="q-ml-sm col"><q-icon name="email"/> Email: {{ editoraInfor.email }}</span>
@@ -84,7 +89,7 @@
 
             <q-card-actions align="right">
               <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
-              <q-btn flat label="Salvar" type="submit" color="primary" @click="dialogs.edit.visible = false"/>
+              <q-btn flat label="Salvar" type="submit" color="primary" @click="performEditAction"/>
             </q-card-actions>
           </q-form>
         </q-card-section>
@@ -127,32 +132,7 @@ onMounted(() => {
     });
 });
 
-const registerAction = () => {
-  dialogs.value.register.visible = true;
-};
-
 const text = ref('');
-
-const dialogs = ref({
-  register: {
-    visible: false,
-    row: {
-      name: ''
-    }
-  },
-  delete: {
-    visible: false,
-    row: null
-  },
-  view: {
-    visible: false,
-    row: null
-  },
-  edit: {
-    visible: false,
-    row: null
-  }
-});
 
 const columns = [
   { name: 'name', required: true, label: 'Nome da Editora', align: 'center', field: row => row.name, format: val => `${val}` },
@@ -178,30 +158,26 @@ const getRows = () => {
     });
 }
 
-const deleteRow = (id) => {
-  api.delete('/publisher/' + id)
-    .then(() => {
-      rows.value = rows.value.filter(row => row.id !== id);
-      dialogs.value.delete.visible = false;
-      console.log("Editora excluída com sucesso");
-    })
-    .catch(error => {
-      console.error("Erro ao excluir editora:", error);
-    });
-}
-
-const editoraInfor = ref([]);
-
-const showMore = (id) => {
-  api.get('/publisher/' + id)
-    .then(response => {
-      editoraInfor.value = response.data;
-      console.log(editoraInfor.value);
-    })
-    .catch(error => {
-      console.error("Erro ao obter detalhes da editora:", error);
-    });
-}
+const dialogs = ref({
+  register: {
+    visible: false,
+    row: {
+      name: ''
+    }
+  },
+  delete: {
+    visible: false,
+    row: null
+  },
+  view: {
+    visible: false,
+    row: null
+  },
+  edit: {
+    visible: false,
+    row: null
+  }
+});
 
 const icons = ['visibility', 'edit', 'delete'];
 
@@ -220,19 +196,80 @@ const handleAction = ({ row, icon }) => {
   }
 };
 
+const publisherToCreate = ref({
+  name: '',
+  email: '',
+  telephone: '',
+  site: ''
+});
+
+const registerAction = () => {
+  dialogs.value.register.visible = true;
+  createRow(publisherToCreate.value);
+};
+
+const createRow = (publisherToCreate) => {
+  api.post('/publisher', publisherToCreate)
+  .then(response => {
+    console.log("Deu CERTOOOO", response);
+    dialogs.value.register.visible = false;
+    getRows();
+  })
+  .catch(error => {
+    console.log("Moio", error)
+  })
+};
+
+const editRow = (editoraInfor) => {
+  api.put('/publisher', editoraInfor)
+    .then(response => {
+      console.log("DEUUUUUUUUUUUU", response);
+      getRows();
+    })
+    .catch(error => {
+      console.log("deunao", error)
+    })
+};
+
+const deleteRow = (id) => {
+  api.delete('/publisher/' + id)
+    .then(() => {
+      rows.value = rows.value.filter(row => row.id !== id);
+      dialogs.value.delete.visible = false;
+      console.log("Editora excluída com sucesso");
+      getRows();
+    })
+    .catch(error => {
+      console.error("Erro ao excluir editora:", error);
+    });
+};
+
+const editoraInfor = ref([]);
+
+const showMore = (id) => {
+  api.get('/publisher/' + id)
+    .then(response => {
+      editoraInfor.value = response.data;
+      console.log(editoraInfor.value);
+    })
+    .catch(error => {
+      console.error("Erro ao obter detalhes da editora:", error);
+    });
+}
+
 const performDeleteAction = () => {
   const { row } = dialogs.value.delete;
   deleteRow(row.id);
 };
 
+const performEditAction = () => {
+  editRow(editoraInfor.value);
+  dialogs.value.edit.visible = false;
+};
+
 const onSubmit = () => {
   console.log("Teste");
 };
-
-// const filteredRows = computed(() => {
-//   const term = text.value.toLowerCase();
-//   return rows.value.filter(row => row.name.toLowerCase().includes(term));
-// });
 </script>
 
 

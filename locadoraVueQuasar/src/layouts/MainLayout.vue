@@ -138,7 +138,7 @@ const miniState = ref(true)
 
 <style>
 .bgLayoutLogin{
-  background: linear-gradient(to right, #4b8086 8%, #6be2ab 100%); 
+  background: linear-gradient(to right, #4b8086 8%, #6be2ab 100%);
 }
 
 .card{
