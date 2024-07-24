@@ -3,7 +3,7 @@
     <div class="row items-center q-mx-auto text-h5">
       <div class="text-weight-bold">
         Locatários
-        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm"/>
+        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="registerAction"/>
       </div>
 
       <q-input v-model="text" label="Pesquisar..." class="q-ml-lg col-md-8">
@@ -25,25 +25,48 @@
       @action="handleAction"
     />
 
-    <q-dialog v-model="dialogs.delete.visible" persistent>
-      <q-card class="">
+    <q-dialog v-model="dialogs.register.visible" persistent>
+      <q-card>
         <q-card-section class="row items-center">
-          <q-avatar icon="delete" color="red" text-color="white" />
-          <span class="q-ml-sm">Você tem certeza que deseja excluir {{ dialogs.delete.row.name }}?</span>
+          <q-avatar icon="add" color="teal-10" text-color="white" />
+          <span class="q-ml-sm">Cadastrar Novo locatário</span>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false" />
-          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction" />
-        </q-card-actions>
+        <q-card-section>
+          <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
+            <q-input v-model="renterToCreate.name" label="Nome do locatário" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
+            <q-input v-model="renterToCreate.email" label="Email" filled lazy-rules/>
+            <q-input v-model="renterToCreate.telephone" label="Telefone" filled lazy-rules/>
+            <q-input v-model="renterToCreate.address" label="Endereço" filled lazy-rules/>
+            <q-input v-model="renterToCreate.cpf" label="Cpf" filled lazy-rules/>
+
+            <q-card-actions align="right">
+              <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
+              <q-btn flat label="Salvar" type="submit" color="primary" @click="registerAction"/>
+            </q-card-actions>
+          </q-form>
+        </q-card-section>
       </q-card>
     </q-dialog>
 
     <q-dialog v-model="dialogs.view.visible" persistent>
       <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="visibility" color="blue" text-color="white" />
-          <span class="q-ml-sm">Visualizar os detalhes do locatário {{ dialogs.view.row.name }}?</span>
+        <q-card-section class="row items-center column">
+          <div>
+            <q-avatar icon="visibility" color="blue" text-color="white" />
+            <span class="q-ml-sm text-h6">Detalhes do locatário {{ dialogs.view.row.name }}</span>
+          </div>
+
+          <div class="q-ml-sm ">
+            <div class="column q-mt-md">
+              <span class="q-ml-sm col"><q-icon name="key"/> Id: {{ renterInfor.id }}</span>
+              <span class="q-ml-sm col"><q-icon name="person"/> Nome: {{ renterInfor.name }}</span>
+              <span class="q-ml-sm col"><q-icon name="email"/> Email: {{ renterInfor.email }}</span>
+              <span class="q-ml-sm col"><q-icon name="phone"/> Telefone: {{ renterInfor.telephone }}</span>
+              <span class="q-ml-sm col"><q-icon name="home"/> Endereço: {{ renterInfor.address }}</span>
+              <span class="q-ml-sm col"><q-icon name="insert_drive_file"/> cpf: {{ renterInfor.cpf }}</span>
+            </div>
+          </div>
         </q-card-section>
 
         <q-card-actions align="right">
@@ -56,12 +79,36 @@
       <q-card>
         <q-card-section class="row items-center">
           <q-avatar icon="edit" color="green" text-color="white" />
-          <span class="q-ml-sm">Você tem certeza que deseja editar as informações do {{ dialogs.edit.row.name }}?</span>
+          <span class="q-ml-sm">Você tem certeza que deseja editar o locatário {{ dialogs.edit.row.name }}?</span>
+        </q-card-section>
+
+        <q-card-section>
+          <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
+            <q-input v-model="renterInfor.name" label="Nome do locatário" filled lazy-rules/>
+            <q-input v-model="renterInfor.email" label="Email" filled lazy-rules/>
+            <q-input v-model="renterInfor.telephone" label="Telefone" filled lazy-rules/>
+            <q-input v-model="renterInfor.address" label="Endereço" filled lazy-rules/>
+            <q-input v-model="renterInfor.cpf" label="CPF" filled lazy-rules/>
+
+            <q-card-actions align="right">
+              <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
+              <q-btn flat label="Salvar" type="submit" color="primary" @click="performEditAction"/>
+            </q-card-actions>
+          </q-form>
+        </q-card-section>
+      </q-card>
+    </q-dialog>
+
+    <q-dialog v-model="dialogs.delete.visible" persistent>
+      <q-card>
+        <q-card-section class="row items-center">
+          <q-avatar icon="delete" color="red" text-color="white" />
+          <span class="q-ml-sm">Você tem certeza que deseja excluir o locatário {{ dialogs.delete.row.name }}?</span>
         </q-card-section>
 
         <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
-          <q-btn flat label="Editar" color="primary" @click="performEditAction" />
+          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false"/>
+          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction"/>
         </q-card-actions>
       </q-card>
     </q-dialog>
@@ -89,22 +136,6 @@ onMounted(() => {
 
 const text = ref('');
 
-const dialogs = ref({
-  delete: {
-    visible: false,
-    row: null
-  },
-  view: {
-    visible: false,
-    row: null
-  },
-  edit: {
-    visible: false,
-    row: null
-  }
-});
-
-
 const columns = [
   { name: 'name', required: true, label: 'Nome do locatário', align: 'center', field: row => row.name, format: val => `${val}`},
   { name: 'email', align: 'center', label: 'Email', field: 'email'},
@@ -131,6 +162,27 @@ const getRows = () => {
     });
 }
 
+const dialogs = ref({
+  register: {
+    visible: false,
+    row: {
+      name: ''
+    }
+  },
+  delete: {
+    visible: false,
+    row: null
+  },
+  view: {
+    visible: false,
+    row: null
+  },
+  edit: {
+    visible: false,
+    row: null
+  }
+});
+
 const icons = ['visibility', 'edit', 'delete'];
 
 const handleAction = ({ row, icon }) => {
@@ -140,10 +192,88 @@ const handleAction = ({ row, icon }) => {
   } else if (icon === 'visibility') {
     dialogs.value.view.row = row;
     dialogs.value.view.visible = true;
+    showMore(row.id);
   } else if (icon === 'edit') {
     dialogs.value.edit.row = row;
     dialogs.value.edit.visible = true;
+    showMore(row.id);
   }
+};
+
+const renterToCreate = ref({
+  name: '',
+  email: '',
+  telephone: '',
+  address: '',
+  cpf: ''
+});
+
+const registerAction = () => {
+  dialogs.value.register.visible = true;
+  createRow(renterToCreate.value);
+};
+
+const createRow = (renterToCreate) => {
+  api.post('/renter', renterToCreate)
+  .then(response => {
+    console.log("Sucesso ao criar novo locatário", response);
+    dialogs.value.register.visible = false;
+    getRows();
+  })
+  .catch(error => {
+    console.log("Erro ao criar locatário", error)
+  })
+};
+
+const renterInfor = ref([]);
+
+const showMore = (id) => {
+  api.get('/renter/' + id)
+    .then(response => {
+      renterInfor.value = response.data;
+      console.log(renterInfor.value);
+    })
+    .catch(error => {
+      console.error("Erro ao obter detalhes do locatário:", error);
+    });
+}
+
+const editRow = (renterInfor) => {
+  api.put('/renter', renterInfor)
+    .then(response => {
+      console.log("Sucesso ao editar", response);
+      getRows();
+    })
+    .catch(error => {
+      console.log("Erro ao editar", error)
+    })
+};
+
+const performEditAction = () => {
+  editRow(renterInfor.value);
+  dialogs.value.edit.visible = false;
+};
+
+const deleteRow = (id) => {
+  api.delete('/renter/' + id)
+    .then(() => {
+      rows.value = rows.value.filter(row => row.id !== id);
+      dialogs.value.delete.visible = false;
+      console.log("Locatário excluído com sucesso");
+      getRows();
+    })
+    .catch(error => {
+      console.error("Erro ao excluir locatário:", error);
+    });
+};
+
+const performDeleteAction = () => {
+  const { row } = dialogs.value.delete;
+  deleteRow(row.id);
+};
+
+const onSubmit = () => {
+  console.log("Teste");
 };
 </script>
 
