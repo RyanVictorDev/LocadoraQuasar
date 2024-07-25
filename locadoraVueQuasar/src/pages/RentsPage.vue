@@ -1,9 +1,8 @@
 <template>
   <q-page padding>
     <div class="row items-center q-mx-auto text-h5">
-      <div class="text-weight-bold">
+      <div class="text-weight-bold q-mr-md">
         Aluguéis
-        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm"/>
       </div>
 
       <q-input v-model="text" label="Pesquisar..." class="q-ml-lg col-md-8">
@@ -46,10 +45,20 @@
           <span class="q-ml-sm">Você tem certeza que deseja editar o aluguel do livro "{{ dialogs.edit.row.bookName }}"?</span>
         </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
-          <q-btn flat label="Editar" color="primary" @click="performEditAction" />
-        </q-card-actions>
+        <q-card-section>
+          <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
+            <q-input v-model="rentInfor.renterName" label="Nome do locatário" filled lazy-rules/>
+            <q-input v-model="rentInfor.email" label="Email" filled lazy-rules/>
+            <q-input v-model="rentInfor.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
+            <q-input v-model="rentInfor.address" label="Endereço" filled lazy-rules/>
+            <q-input v-model="rentInfor.cpf" label="CPF" mask="###.###.###-##" fill-mask filled lazy-rules/>
+
+            <q-card-actions align="right">
+              <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
+              <q-btn flat label="Salvar" type="submit" color="primary" @click="performEditAction"/>
+            </q-card-actions>
+          </q-form>
+        </q-card-section>
       </q-card>
     </q-dialog>
   </q-page>
@@ -75,17 +84,6 @@ onMounted(() => {
 });
 
 const text = ref('');
-
-const dialogs = ref({
-  rent: {
-    visible: false,
-    row: null
-  },
-  edit: {
-    visible: false,
-    row: null
-  }
-});
 
 const columns = [
   { name: 'renterName', align: 'center', label: 'Locatário', field: 'renterName' },
@@ -115,6 +113,17 @@ const getRows = () => {
     });
 };
 
+const dialogs = ref({
+  rent: {
+    visible: false,
+    row: null
+  },
+  edit: {
+    visible: false,
+    row: null
+  }
+});
+
 const icons = ['bookmark_border', 'edit'];
 
 const handleAction = ({ row, icon }) => {
@@ -124,9 +133,42 @@ const handleAction = ({ row, icon }) => {
   } else if (icon === 'edit') {
     dialogs.value.edit.row = row;
     dialogs.value.edit.visible = true;
+    showMore(row.id);
   }
 };
 
+const rentInfor = ref([]);
+
+const showMore = () => {
+  api.get('/rent')
+    .then(response => {
+      rentInfor.value = response.data;
+      console.log(rentInfor.value);
+    })
+    .catch(error => {
+      console.error("Erro ao obter detalhes do locatário:", error);
+    });
+};
+
+const editRow = (rentInfor) => {
+  api.put('/rent', rentInfor)
+    .then(response => {
+      console.log("Sucesso ao editar", response);
+      getRows();
+    })
+    .catch(error => {
+      console.log("Erro ao editar", error)
+    })
+};
+
+const performEditAction = () => {
+  editRow(rentInfor.value);
+  dialogs.value.edit.visible = false;
+};
+
+const onSubmit = () => {
+  console.log("Teste");
+};
 // const performRentAction = () => {
 //   const { row } = dialogs.value.rent;
 //   dialogs.value.rent.visible = false;

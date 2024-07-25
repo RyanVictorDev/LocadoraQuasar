@@ -26,7 +26,7 @@
     />
 
     <q-dialog v-model="dialogs.register.visible" persistent>
-      <q-card>
+      <q-card class="widhtModal">
         <q-card-section class="row items-center">
           <q-avatar icon="add" color="teal-10" text-color="white" />
           <span class="q-ml-sm">Cadastrar Novo locatário</span>
@@ -36,9 +36,9 @@
           <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
             <q-input v-model="renterToCreate.name" label="Nome do locatário" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
             <q-input v-model="renterToCreate.email" label="Email" filled lazy-rules/>
-            <q-input v-model="renterToCreate.telephone" label="Telefone" filled lazy-rules/>
+            <q-input v-model="renterToCreate.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
             <q-input v-model="renterToCreate.address" label="Endereço" filled lazy-rules/>
-            <q-input v-model="renterToCreate.cpf" label="Cpf" filled lazy-rules/>
+            <q-input v-model="renterToCreate.cpf" label="Cpf" mask="###.###.###-##" fill-mask filled lazy-rules/>
 
             <q-card-actions align="right">
               <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
@@ -86,9 +86,9 @@
           <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
             <q-input v-model="renterInfor.name" label="Nome do locatário" filled lazy-rules/>
             <q-input v-model="renterInfor.email" label="Email" filled lazy-rules/>
-            <q-input v-model="renterInfor.telephone" label="Telefone" filled lazy-rules/>
+            <q-input v-model="renterInfor.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
             <q-input v-model="renterInfor.address" label="Endereço" filled lazy-rules/>
-            <q-input v-model="renterInfor.cpf" label="CPF" filled lazy-rules/>
+            <q-input v-model="renterInfor.cpf" label="CPF" mask="###.###.###-##" fill-mask filled lazy-rules/>
 
             <q-card-actions align="right">
               <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
@@ -160,7 +160,7 @@ const getRows = () => {
     .catch(error => {
       console.error("Erro ao obter dados:", error);
     });
-}
+};
 
 const dialogs = ref({
   register: {
@@ -236,7 +236,7 @@ const showMore = (id) => {
     .catch(error => {
       console.error("Erro ao obter detalhes do locatário:", error);
     });
-}
+};
 
 const editRow = (renterInfor) => {
   api.put('/renter', renterInfor)

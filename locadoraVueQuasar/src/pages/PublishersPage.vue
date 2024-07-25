@@ -26,7 +26,7 @@
     />
 
     <q-dialog v-model="dialogs.register.visible" persistent>
-      <q-card>
+      <q-card class="widhtModal">
         <q-card-section class="row items-center">
           <q-avatar icon="add" color="teal-10" text-color="white" />
           <span class="q-ml-sm">Cadastrar Nova Editora</span>
@@ -36,7 +36,7 @@
           <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
             <q-input v-model="publisherToCreate.name" label="Nome da Editora" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
             <q-input v-model="publisherToCreate.email" label="Email" filled lazy-rules/>
-            <q-input v-model="publisherToCreate.telephone" label="Telefone" filled lazy-rules/>
+            <q-input v-model="publisherToCreate.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
             <q-input v-model="publisherToCreate.site" label="Site" filled lazy-rules/>
 
             <q-card-actions align="right">
@@ -84,7 +84,7 @@
           <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
             <q-input v-model="editoraInfor.name" label="Nome da Editora" filled lazy-rules/>
             <q-input v-model="editoraInfor.email" label="Email" filled lazy-rules/>
-            <q-input v-model="editoraInfor.telephone" label="Telefone" filled lazy-rules/>
+            <q-input v-model="editoraInfor.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
             <q-input v-model="editoraInfor.site" label="Site" filled lazy-rules/>
 
             <q-card-actions align="right">
