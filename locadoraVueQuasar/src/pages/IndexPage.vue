@@ -1,46 +1,31 @@
 <template>
   <q-page padding>
-    <TableComponent
-    :title="title"
-    :rows="rows"
-    :columns="columns"
-    />
+    <div class="q-pa-md example-row-equal-width flex justify-evenly">
+      <div class="row">
+        <chartBarComponent/>
+      </div>
+      <div class="row">
+        <chartPieComponent/>
+      </div>
+    </div>
+    aaa
   </q-page>
 </template>
 
 <script setup>
-import { ref} from 'vue'
-import TableComponent from 'src/components/TableComponent.vue'
+import chartBarComponent from 'src/components/chartBarComponent.vue';
+import chartPieComponent from 'src/components/chartPieComponent.vue';
 
 defineOptions({
   name: 'IndexPage',
 });
-
-const title = 'Teste'
-
-const columns = [
-  {
-    name: 'name', required: true, label: 'Nome da Editora', align: 'left', field: row => row.name, format: val => `${val}`, sortable: true},
-  { name: 'acoes', align: 'center', label: 'Ações', field: 'acoes', sortable: true },
-]
-
-const rows = [
-  {
-    name: 'Editorando',
-    acoes: 159,
-  },
-  {
-    name: 'Editora Massa',
-    acoes: 237,
-  },
-  {
-    name: 'Editora paia',
-    acoes: 237,
-  },
-
-]
 </script>
 
-<style scoped lang="sass">
-
+<style scoped>
+.flex{
+  display: flex;
+  width: 100%;
+  max-height: 350px;
+  flex-direction: row;
+}
 </style>

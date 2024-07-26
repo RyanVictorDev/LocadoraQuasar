@@ -19,7 +19,7 @@
 
 <script setup>
 defineOptions({
-  name: 'HeaderAndSidebar'
+  name: 'SidebarComponent'
 })
 
 const props = defineProps({
@@ -27,12 +27,7 @@ const props = defineProps({
     type: String,
     required: true
   },
-
-  // caption: {
-  //   type: String,
-  //   default: ''
-  // },
-
+  
   route: {
     type: String,
     default: ''

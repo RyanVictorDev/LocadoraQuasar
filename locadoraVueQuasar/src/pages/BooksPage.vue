@@ -88,7 +88,7 @@
         </q-card-section>
 
         <q-card-section>
-          <q-form @submit.prevent="performEditAction(bookInforEdit)" class="q-gutter-md q-my-auto">
+          <q-form @submit.prevent="performEditAction(bookInforEdit), showMore(dialogs.edit.row.id)" class="q-gutter-md q-my-auto">
             <q-input v-model="bookInforEdit.name" label="Título do livro" filled lazy-rules/>
             <q-input v-model="bookInforEdit.author" label="Autor" filled lazy-rules/>
             <q-input v-model="bookInforEdit.totalQuantity" label="Estoque" filled lazy-rules/>
@@ -323,7 +323,7 @@ const editRow = (bookInfor) => {
 };
 
 const performEditAction = (bookInforEdit) => {
-  editRow(bookInforEdit.value);
+  editRow(bookInforEdit);
   dialogs.value.edit.visible = false;
 };
 
