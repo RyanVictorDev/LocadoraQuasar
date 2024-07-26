@@ -3,16 +3,16 @@
     <div class="row items-center q-mx-auto text-h5">
       <div class="text-weight-bold">
         Editoras
-        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="registerAction"/>
+        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="openRegisterDialog"/>
       </div>
 
-      <q-input v-model="text" label="Pesquisar..." class="q-ml-lg col-md-8">
+      <q-input v-model="srch" label="Pesquisar..." class="q-ml-lg col-md-8">
         <template v-slot:append>
-          <q-icon v-if="text !== ''" name="close" @click="text = ''" class="cursor-pointer" />
+          <q-icon v-if="srch !== ''" name="close" @click="srch = '', getRows(srch)" class="cursor-pointer" />
         </template>
 
         <template v-slot:after>
-          <q-btn round dense flat icon="search" />
+          <q-btn round dense flat icon="search" @click="getRows(srch)"/>
         </template>
       </q-input>
     </div>
@@ -132,7 +132,7 @@ onMounted(() => {
     });
 });
 
-const text = ref('');
+const srch = ref('');
 
 const columns = [
   { name: 'name', required: true, label: 'Nome da Editora', align: 'center', field: row => row.name, format: val => `${val}` },
@@ -141,8 +141,8 @@ const columns = [
 
 const rows = ref([]);
 
-const getRows = () => {
-  api.get('/publisher')
+const getRows = (srch = '') => {
+  api.get('/publisher', { params: { search: srch } })
     .then(response => {
       if (Array.isArray(response.data.content)) {
         rows.value = response.data.content;
@@ -203,8 +203,11 @@ const publisherToCreate = ref({
   site: ''
 });
 
-const registerAction = () => {
+const openRegisterDialog = () => {
   dialogs.value.register.visible = true;
+};
+
+const registerAction = () => {
   createRow(publisherToCreate.value);
 };
 

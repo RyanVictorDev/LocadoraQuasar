@@ -5,13 +5,13 @@
         Aluguéis
       </div>
 
-      <q-input v-model="text" label="Pesquisar..." class="q-ml-lg col-md-8">
+      <q-input v-model="srch" label="Pesquisar..." class="q-ml-lg col-md-8">
         <template v-slot:append>
-          <q-icon v-if="text !== ''" name="close" @click="text = ''" class="cursor-pointer" />
+          <q-icon v-if="srch !== ''" name="close" @click="srch = '', getRows(srch)" class="cursor-pointer" />
         </template>
 
         <template v-slot:after>
-          <q-btn round dense flat icon="search" />
+          <q-btn round dense flat icon="search" @click="getRows(srch)"/>
         </template>
       </q-input>
     </div>
@@ -33,32 +33,8 @@
 
         <q-card-actions align="right">
           <q-btn flat label="Fechar" color="primary" @click="dialogs.rent.visible = false" />
-          <q-btn flat label="Devolver" color="primary" @click="performRentAction" />
+          <q-btn flat label="Devolver" color="primary" @click="performDeliveryAction(dialogs.rent.row.id)" />
         </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="dialogs.edit.visible" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="edit" color="green" text-color="white" />
-          <span class="q-ml-sm">Você tem certeza que deseja editar o aluguel do livro "{{ dialogs.edit.row.bookName }}"?</span>
-        </q-card-section>
-
-        <q-card-section>
-          <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
-            <q-input v-model="rentInfor.renterName" label="Nome do locatário" filled lazy-rules/>
-            <q-input v-model="rentInfor.email" label="Email" filled lazy-rules/>
-            <q-input v-model="rentInfor.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
-            <q-input v-model="rentInfor.address" label="Endereço" filled lazy-rules/>
-            <q-input v-model="rentInfor.cpf" label="CPF" mask="###.###.###-##" fill-mask filled lazy-rules/>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
-              <q-btn flat label="Salvar" type="submit" color="primary" @click="performEditAction"/>
-            </q-card-actions>
-          </q-form>
-        </q-card-section>
       </q-card>
     </q-dialog>
   </q-page>
@@ -83,7 +59,7 @@ onMounted(() => {
     });
 });
 
-const text = ref('');
+const srch = ref('');
 
 const columns = [
   { name: 'renterName', align: 'center', label: 'Locatário', field: 'renterName' },
@@ -96,8 +72,8 @@ const columns = [
 
 const rows = ref([]);
 
-const getRows = () => {
-  api.get('/rent')
+const getRows = (srch = '') => {
+  api.get('/rent', { params: { search: srch } })
     .then(response => {
       if (Array.isArray(response.data.content)) {
         rows.value = response.data.content;
@@ -117,22 +93,15 @@ const dialogs = ref({
   rent: {
     visible: false,
     row: null
-  },
-  edit: {
-    visible: false,
-    row: null
   }
 });
 
-const icons = ['bookmark_border', 'edit'];
+const icons = ['bookmark_border'];
 
 const handleAction = ({ row, icon }) => {
   if (icon === 'bookmark_border') {
     dialogs.value.rent.row = row;
     dialogs.value.rent.visible = true;
-  } else if (icon === 'edit') {
-    dialogs.value.edit.row = row;
-    dialogs.value.edit.visible = true;
     showMore(row.id);
   }
 };
@@ -150,29 +119,28 @@ const showMore = () => {
     });
 };
 
-const editRow = (rentInfor) => {
-  api.put('/rent', rentInfor)
+const editRow = (id) => {
+  api.put('/rent/' + id)
     .then(response => {
       console.log("Sucesso ao editar", response);
       getRows();
     })
     .catch(error => {
       console.log("Erro ao editar", error)
+      console.log(rentInfor);
     })
 };
 
-const performEditAction = () => {
-  editRow(rentInfor.value);
-  dialogs.value.edit.visible = false;
+const performDeliveryAction = (teste) => {
+  editRow(teste);
+  console.log(teste);
+  dialogs.value.rent.visible = false;
 };
+
 
 const onSubmit = () => {
   console.log("Teste");
 };
-// const performRentAction = () => {
-//   const { row } = dialogs.value.rent;
-//   dialogs.value.rent.visible = false;
-// };
 
 // const performEditAction = () => {
 //   const { row } = dialogs.value.edit;
