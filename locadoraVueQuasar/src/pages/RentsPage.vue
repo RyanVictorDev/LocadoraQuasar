@@ -1,42 +1,44 @@
 <template>
-  <q-page padding>
-    <div class="row items-center q-mx-auto text-h5">
-      <div class="text-weight-bold q-mr-md">
-        Aluguéis
+  <q-page padding class="backStyle">
+    <div class="main">
+      <div class="row items-center q-mx-auto text-h5">
+        <div class="text-weight-bold q-mr-lg">
+          Aluguéis
+        </div>
+
+        <q-input v-model="srch" label="Pesquisar..." class="q-ml-sm col" input-style="min-width: 100%">
+          <template v-slot:append>
+            <q-icon v-if="srch !== ''" name="close" @click="srch = '', getRows(srch)" class="cursor-pointer" />
+          </template>
+
+          <template v-slot:after>
+            <q-btn round dense flat icon="search" @click="getRows(srch)"/>
+          </template>
+        </q-input>
       </div>
 
-      <q-input v-model="srch" label="Pesquisar..." class="q-ml-lg col-md-8">
-        <template v-slot:append>
-          <q-icon v-if="srch !== ''" name="close" @click="srch = '', getRows(srch)" class="cursor-pointer" />
-        </template>
+      <TableComponent
+        :title="title"
+        :rows="rows"
+        :columns="columns"
+        :icons="icons"
+        @action="handleAction"
+      />
 
-        <template v-slot:after>
-          <q-btn round dense flat icon="search" @click="getRows(srch)"/>
-        </template>
-      </q-input>
+      <q-dialog v-model="dialogs.rent.visible" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="bookmark_border" color="blue" text-color="white" />
+            <span class="q-ml-sm">Devolver o livro "{{ dialogs.rent.row.bookName }}" alugado por {{ dialogs.rent.row.renterName }}?</span>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="Fechar" color="primary" @click="dialogs.rent.visible = false" />
+            <q-btn flat label="Devolver" color="primary" @click="performDeliveryAction(dialogs.rent.row.id)" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
-
-    <TableComponent
-      :title="title"
-      :rows="rows"
-      :columns="columns"
-      :icons="icons"
-      @action="handleAction"
-    />
-
-    <q-dialog v-model="dialogs.rent.visible" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="bookmark_border" color="blue" text-color="white" />
-          <span class="q-ml-sm">Devolver o livro "{{ dialogs.rent.row.bookName }}" alugado por {{ dialogs.rent.row.renterName }}?</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Fechar" color="primary" @click="dialogs.rent.visible = false" />
-          <q-btn flat label="Devolver" color="primary" @click="performDeliveryAction(dialogs.rent.row.id)" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 

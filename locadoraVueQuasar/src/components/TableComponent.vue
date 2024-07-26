@@ -8,6 +8,7 @@
     :columns="columns"
     row-key="name"
     color="primary"
+    rows-per-page-label="Registros por página"
   >
     <template v-slot:body-cell-actions="props">
       <q-td :props="props">

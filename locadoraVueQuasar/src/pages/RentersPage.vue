@@ -1,117 +1,119 @@
 <template>
-  <q-page padding>
-    <div class="row items-center q-mx-auto text-h5">
-      <div class="text-weight-bold">
-        Locatários
-        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="registerAction"/>
+  <q-page padding class="backStyle">
+    <div class="main">
+      <div class="row items-center q-mx-auto text-h5">
+        <div class="text-weight-bold q-mr-lg">
+          Locatários
+          <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="registerAction"/>
+        </div>
+
+        <q-input v-model="srch" label="Pesquisar..." class="q-ml-sm col" input-style="min-width: 100%">
+          <template v-slot:append>
+            <q-icon v-if="srch !== ''" name="close" @click="srch = '', getRows(srch)" class="cursor-pointer" />
+          </template>
+
+          <template v-slot:after>
+            <q-btn round dense flat icon="search" @click="getRows(srch)"/>
+          </template>
+        </q-input>
       </div>
 
-      <q-input v-model="srch" label="Pesquisar..." class="q-ml-lg col-md-8">
-        <template v-slot:append>
-          <q-icon v-if="srch !== ''" name="close" @click="srch = '', getRows(srch)" class="cursor-pointer" />
-        </template>
+      <TableComponent
+        :title="title"
+        :rows="rows"
+        :columns="columns"
+        :icons="icons"
+        @action="handleAction"
+      />
 
-        <template v-slot:after>
-          <q-btn round dense flat icon="search" @click="getRows(srch)"/>
-        </template>
-      </q-input>
-    </div>
+      <q-dialog v-model="dialogs.register.visible" persistent>
+        <q-card class="widhtModal">
+          <q-card-section class="row items-center">
+            <q-avatar icon="add" color="teal-10" text-color="white" />
+            <span class="q-ml-sm">Cadastrar Novo locatário</span>
+          </q-card-section>
 
-    <TableComponent
-      :title="title"
-      :rows="rows"
-      :columns="columns"
-      :icons="icons"
-      @action="handleAction"
-    />
+          <q-card-section>
+            <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
+              <q-input v-model="renterToCreate.name" label="Nome do locatário" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
+              <q-input v-model="renterToCreate.email" label="Email" filled lazy-rules/>
+              <q-input v-model="renterToCreate.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
+              <q-input v-model="renterToCreate.address" label="Endereço" filled lazy-rules/>
+              <q-input v-model="renterToCreate.cpf" label="Cpf" mask="###.###.###-##" fill-mask filled lazy-rules/>
 
-    <q-dialog v-model="dialogs.register.visible" persistent>
-      <q-card class="widhtModal">
-        <q-card-section class="row items-center">
-          <q-avatar icon="add" color="teal-10" text-color="white" />
-          <span class="q-ml-sm">Cadastrar Novo locatário</span>
-        </q-card-section>
+              <q-card-actions align="right">
+                <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
+                <q-btn flat label="Salvar" type="submit" color="primary" @click="registerAction"/>
+              </q-card-actions>
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
 
-        <q-card-section>
-          <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
-            <q-input v-model="renterToCreate.name" label="Nome do locatário" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
-            <q-input v-model="renterToCreate.email" label="Email" filled lazy-rules/>
-            <q-input v-model="renterToCreate.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
-            <q-input v-model="renterToCreate.address" label="Endereço" filled lazy-rules/>
-            <q-input v-model="renterToCreate.cpf" label="Cpf" mask="###.###.###-##" fill-mask filled lazy-rules/>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
-              <q-btn flat label="Salvar" type="submit" color="primary" @click="registerAction"/>
-            </q-card-actions>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="dialogs.view.visible" persistent>
-      <q-card>
-        <q-card-section class="row items-center column">
-          <div>
-            <q-avatar icon="visibility" color="blue" text-color="white" />
-            <span class="q-ml-sm text-h6">Detalhes do locatário {{ dialogs.view.row.name }}</span>
-          </div>
-
-          <div class="q-ml-sm ">
-            <div class="column q-mt-md">
-              <span class="q-ml-sm col"><q-icon name="key"/> Id: {{ renterInfor.id }}</span>
-              <span class="q-ml-sm col"><q-icon name="person"/> Nome: {{ renterInfor.name }}</span>
-              <span class="q-ml-sm col"><q-icon name="email"/> Email: {{ renterInfor.email }}</span>
-              <span class="q-ml-sm col"><q-icon name="phone"/> Telefone: {{ renterInfor.telephone }}</span>
-              <span class="q-ml-sm col"><q-icon name="home"/> Endereço: {{ renterInfor.address }}</span>
-              <span class="q-ml-sm col"><q-icon name="insert_drive_file"/> cpf: {{ renterInfor.cpf }}</span>
+      <q-dialog v-model="dialogs.view.visible" persistent>
+        <q-card>
+          <q-card-section class="row items-center column">
+            <div>
+              <q-avatar icon="visibility" color="blue" text-color="white" />
+              <span class="q-ml-sm text-h6">Detalhes do locatário {{ dialogs.view.row.name }}</span>
             </div>
-          </div>
-        </q-card-section>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Fechar" color="primary" @click="dialogs.view.visible = false" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+            <div class="q-ml-sm ">
+              <div class="column q-mt-md">
+                <span class="q-ml-sm col"><q-icon name="key"/> Id: {{ renterInfor.id }}</span>
+                <span class="q-ml-sm col"><q-icon name="person"/> Nome: {{ renterInfor.name }}</span>
+                <span class="q-ml-sm col"><q-icon name="email"/> Email: {{ renterInfor.email }}</span>
+                <span class="q-ml-sm col"><q-icon name="phone"/> Telefone: {{ renterInfor.telephone }}</span>
+                <span class="q-ml-sm col"><q-icon name="home"/> Endereço: {{ renterInfor.address }}</span>
+                <span class="q-ml-sm col"><q-icon name="insert_drive_file"/> cpf: {{ renterInfor.cpf }}</span>
+              </div>
+            </div>
+          </q-card-section>
 
-    <q-dialog v-model="dialogs.edit.visible" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="edit" color="green" text-color="white" />
-          <span class="q-ml-sm">Você tem certeza que deseja editar o locatário {{ dialogs.edit.row.name }}?</span>
-        </q-card-section>
+          <q-card-actions align="right">
+            <q-btn flat label="Fechar" color="primary" @click="dialogs.view.visible = false" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
 
-        <q-card-section>
-          <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
-            <q-input v-model="renterInfor.name" label="Nome do locatário" filled lazy-rules/>
-            <q-input v-model="renterInfor.email" label="Email" filled lazy-rules/>
-            <q-input v-model="renterInfor.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
-            <q-input v-model="renterInfor.address" label="Endereço" filled lazy-rules/>
-            <q-input v-model="renterInfor.cpf" label="CPF" mask="###.###.###-##" fill-mask filled lazy-rules/>
+      <q-dialog v-model="dialogs.edit.visible" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="edit" color="green" text-color="white" />
+            <span class="q-ml-sm">Você tem certeza que deseja editar o locatário {{ dialogs.edit.row.name }}?</span>
+          </q-card-section>
 
-            <q-card-actions align="right">
-              <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
-              <q-btn flat label="Salvar" type="submit" color="primary" @click="performEditAction"/>
-            </q-card-actions>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
+          <q-card-section>
+            <q-form @submit="onSubmit" class="q-gutter-md q-my-auto">
+              <q-input v-model="renterInfor.name" label="Nome do locatário" filled lazy-rules/>
+              <q-input v-model="renterInfor.email" label="Email" filled lazy-rules/>
+              <q-input v-model="renterInfor.telephone" label="Telefone" mask="(##) #####-####" fill-mask filled lazy-rules/>
+              <q-input v-model="renterInfor.address" label="Endereço" filled lazy-rules/>
+              <q-input v-model="renterInfor.cpf" label="CPF" mask="###.###.###-##" fill-mask filled lazy-rules/>
 
-    <q-dialog v-model="dialogs.delete.visible" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="delete" color="red" text-color="white" />
-          <span class="q-ml-sm">Você tem certeza que deseja excluir o locatário {{ dialogs.delete.row.name }}?</span>
-        </q-card-section>
+              <q-card-actions align="right">
+                <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
+                <q-btn flat label="Salvar" type="submit" color="primary" @click="performEditAction"/>
+              </q-card-actions>
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
 
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false"/>
-          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction"/>
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
+      <q-dialog v-model="dialogs.delete.visible" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="delete" color="red" text-color="white" />
+            <span class="q-ml-sm">Você tem certeza que deseja excluir o locatário {{ dialogs.delete.row.name }}?</span>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false"/>
+            <q-btn flat label="Excluir" color="primary" @click="performDeleteAction"/>
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+    </div>
   </q-page>
 </template>
 

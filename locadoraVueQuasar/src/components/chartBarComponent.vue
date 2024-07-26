@@ -1,5 +1,5 @@
 <template>
-  <q-page padding>
+  <q-page>
     <div class="chart-container">
       <div class="title">Relações de livros</div>
       <canvas id="relacoesLivrosChart"></canvas>
@@ -36,7 +36,7 @@ onMounted(() => {
       maintainAspectRatio: false,
       scales: {
         y: {
-          beginAtZero: true
+          // beginAtZero: true
         }
       }
     }
@@ -48,16 +48,16 @@ onMounted(() => {
 .chart-container {
   border-radius: 5px;
   padding: 15px;
-  background-color: rgb(231, 231, 231);
+  box-shadow: 1px 2px 6px 2px rgba(87, 87, 87, 0.51);
+  background-color: rgb(255, 255, 255);
   width: 100%;
-  max-width: 450px;
+  min-width: 450px;
   height: 300px;
-  /* margin: 0 auto; */
   text-align: center;
 }
 
 .title {
-  margin-bottom: 10px;
+  /* margin-bottom: 10px; */
   font-weight: bold;
 }
 

@@ -1,84 +1,86 @@
 <template>
-  <q-page padding>
-    <div class="row items-center q-mx-auto text-h5">
-      <div class="text-weight-bold">
-        Usuários
-        <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="openRegisterDialog"/>
+  <q-page padding class="backStyle">
+    <div class="main">
+      <div class="row items-center q-mx-auto text-h5">
+        <div class="text-weight-bold q-mr-lg">
+          Usuários
+          <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="openRegisterDialog"/>
+        </div>
+
+        <q-input v-model="srch" label="Pesquisar..." class="q-ml-sm col" input-style="min-width: 100%">
+          <template v-slot:append>
+            <q-icon v-if="srch !== ''" name="close" @click="srch = ''" class="cursor-pointer" />
+          </template>
+
+          <template v-slot:after>
+            <q-btn round dense flat icon="search" />
+          </template>
+        </q-input>
       </div>
 
-      <q-input v-model="srch" label="Pesquisar..." class="q-ml-lg col-md-8">
-        <template v-slot:append>
-          <q-icon v-if="srch !== ''" name="close" @click="srch = ''" class="cursor-pointer" />
-        </template>
+      <TableComponent
+        :title="title"
+        :rows="rows"
+        :columns="columns"
+        :icons="icons"
+        @action="handleAction"
+      />
 
-        <template v-slot:after>
-          <q-btn round dense flat icon="search" />
-        </template>
-      </q-input>
+      <q-dialog v-model="dialogs.register.visible" persistent>
+        <q-card class="widhtModal">
+          <q-card-section class="row items-center">
+            <q-avatar icon="add" color="teal-10" text-color="white" />
+            <span class="q-ml-sm">Cadastrar novo usuário</span>
+          </q-card-section>
+
+          <q-card-section>
+            <q-form @submit="registerAction(shape)" class="q-gutter-md q-my-auto">
+              <q-input v-model="userToCreate.name" label="Nome do usuário" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
+              <q-input v-model="userToCreate.email" label="Email" filled lazy-rules :rules="[val => val && val.length > 0 || 'Adicione algo']"/>
+              <q-input v-model="userToCreate.password" label="Senha" type="password" filled lazy-rules :rules="[val => val && val.length > 0 || 'Adicione algo']"/>
+
+              <div class="q-gutter-sm q-px-auto">
+                <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="Editor" label="Editor" />
+                <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="Locatário" label="Locatário" />
+              </div>
+
+              <q-card-actions align="right">
+                <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
+                <q-btn flat label="Salvar" type="submit" color="primary"/>
+              </q-card-actions>
+            </q-form>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+
+      <q-dialog v-model="dialogs.delete.visible" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="delete" color="red" text-color="white" />
+            <span class="q-ml-sm">Você tem certeza que deseja excluir o usuário {{ dialogs.delete.row.name }}?</span>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false" />
+            <q-btn flat label="Excluir" color="primary" @click="performDeleteAction" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
+
+      <q-dialog v-model="dialogs.edit.visible" persistent>
+        <q-card>
+          <q-card-section class="row items-center">
+            <q-avatar icon="edit" color="green" text-color="white" />
+            <span class="q-ml-sm">Você tem certeza que deseja editar o usuário {{ dialogs.edit.row.name }}?</span>
+          </q-card-section>
+
+          <q-card-actions align="right">
+            <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
+            <q-btn flat label="Editar" color="primary" @click="performEditAction" />
+          </q-card-actions>
+        </q-card>
+      </q-dialog>
     </div>
-
-    <TableComponent
-      :title="title"
-      :rows="rows"
-      :columns="columns"
-      :icons="icons"
-      @action="handleAction"
-    />
-
-    <q-dialog v-model="dialogs.register.visible" persistent>
-      <q-card class="widhtModal">
-        <q-card-section class="row items-center">
-          <q-avatar icon="add" color="teal-10" text-color="white" />
-          <span class="q-ml-sm">Cadastrar novo usuário</span>
-        </q-card-section>
-
-        <q-card-section>
-          <q-form @submit="registerAction(shape)" class="q-gutter-md q-my-auto">
-            <q-input v-model="userToCreate.name" label="Nome do usuário" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
-            <q-input v-model="userToCreate.email" label="Email" filled lazy-rules :rules="[val => val && val.length > 0 || 'Adicione algo']"/>
-            <q-input v-model="userToCreate.password" label="Senha" type="password" filled lazy-rules :rules="[val => val && val.length > 0 || 'Adicione algo']"/>
-
-            <div class="q-gutter-sm q-px-auto">
-              <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="Editor" label="Editor" />
-              <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="Locatário" label="Locatário" />
-            </div>
-
-            <q-card-actions align="right">
-              <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false" />
-              <q-btn flat label="Salvar" type="submit" color="primary"/>
-            </q-card-actions>
-          </q-form>
-        </q-card-section>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="dialogs.delete.visible" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="delete" color="red" text-color="white" />
-          <span class="q-ml-sm">Você tem certeza que deseja excluir o usuário {{ dialogs.delete.row.name }}?</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false" />
-          <q-btn flat label="Excluir" color="primary" @click="performDeleteAction" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
-
-    <q-dialog v-model="dialogs.edit.visible" persistent>
-      <q-card>
-        <q-card-section class="row items-center">
-          <q-avatar icon="edit" color="green" text-color="white" />
-          <span class="q-ml-sm">Você tem certeza que deseja editar o usuário {{ dialogs.edit.row.name }}?</span>
-        </q-card-section>
-
-        <q-card-actions align="right">
-          <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
-          <q-btn flat label="Editar" color="primary" @click="performEditAction" />
-        </q-card-actions>
-      </q-card>
-    </q-dialog>
   </q-page>
 </template>
 
