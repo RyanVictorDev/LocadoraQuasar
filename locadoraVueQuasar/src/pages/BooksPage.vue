@@ -70,7 +70,7 @@
             <q-form @submit.prevent="rentAction" class="q-gutter-md q-my-auto">
               <q-input v-model="bookToRent.bookId" label="ID do livro" filled lazy-rules/>
               <q-input v-model="bookToRent.renterId" label="ID do locatário" filled lazy-rules/>
-              <q-input v-model="bookToRent.deadline" label="Devolução" mask="####-##-##" fill-mask filled lazy-rules/>
+              <q-input v-model="bookToRent.deadline" label="Devolução" type="date" mask="####-##-##" fill-mask filled lazy-rules/>
 
               <q-card-actions align="right">
                 <q-btn flat label="Cancelar" color="primary" @click="dialogs.rent.visible = false"/>
@@ -133,6 +133,7 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
 import { api, authenticate } from 'src/boot/axios';
@@ -153,6 +154,17 @@ onMounted(() => {
 });
 
 const srch = ref('');
+
+const $q = useQuasar();
+
+const showNotification = (type, msg) => {
+  $q.notify({
+    type: type,
+    message: msg,
+    position: 'bottom-right',
+    timeout: 3000
+  });
+};
 
 const columns = [
   { name: 'id', align: 'center', label: 'Id', field: 'id'},
@@ -178,6 +190,7 @@ const getRows = (srch = '') => {
       console.log('Resposta da API:', response.data);
     })
     .catch(error => {
+      showNotification('negative', "Erro ao obter dados!");
       console.error("Erro ao obter dados:", error);
     });
 };
@@ -242,9 +255,11 @@ const createRow = (bookToCreate) => {
     .then(response => {
       console.log("Sucesso ao criar novo livro", response);
       dialogs.value.register.visible = false;
+      showNotification('positive', "Livro criado com sucesso!");
       getRows();
     })
     .catch(error => {
+      showNotification('negative', "Erro ao criar livro!");
       console.log("Erro ao criar livro", error);
     });
 };
@@ -264,9 +279,10 @@ const showMore = (id) => {
     }
 
     bookInforEdit.value = filteredData;
-    console.log("VEALI", idPublisher);
+    showNotification('positive', "Dados obtidos com sucesso!");
     })
     .catch(error => {
+      showNotification('negative', "Erro ao obter detalhes do livro!");
       console.error("Erro ao obter detalhes do livro:", error);
     });
 };
@@ -282,9 +298,11 @@ const rentBook = () => {
     .then(response => {
       console.log("Sucesso ao alugar livro", response);
       dialogs.value.rent.visible = false;
+      showNotification('positive', "Sucesso ao alugar livro!");
       getRows();
     })
     .catch(error => {
+      showNotification('negative', "Falha ao alugar livro");
       console.log("Erro ao alugar livro", error);
     });
 };
@@ -316,10 +334,12 @@ const editRow = (bookInfor) => {
   api.put('/book', bookInfor)
     .then(response => {
       console.log("Sucesso ao editar", response);
+      showNotification('positive', "Sucesso ao editar livro!");
       getRows();
     })
     .catch(error => {
       console.log("Erro ao editar", error);
+      showNotification('negative', "erro ao editar livro!");
       console.log(bookInfor);
     });
 };
@@ -335,9 +355,11 @@ const deleteRow = (id) => {
       rows.value = rows.value.filter(row => row.id !== id);
       dialogs.value.delete.visible = false;
       console.log("Livro excluído com sucesso");
+      showNotification('positive', "Livro excluído com sucesso!");
       getRows();
     })
     .catch(error => {
+      showNotification('negative', "Erro ao excluir livro!");
       console.error("Erro ao excluir livro:", error);
     });
 };

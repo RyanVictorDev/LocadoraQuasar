@@ -87,6 +87,7 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref } from 'vue'
 import axios from 'axios'
 import SidebarComponent from 'src/components/SidebarComponent.vue'
@@ -94,6 +95,17 @@ import SidebarComponent from 'src/components/SidebarComponent.vue'
 defineOptions({
   name: 'MainLayout'
 })
+
+const $q = useQuasar();
+
+const showNotification = (type, msg) => {
+  $q.notify({
+    type: type,
+    message: msg,
+    position: 'bottom-right',
+    timeout: 3000
+  });
+};
 
 const log = ref(false)
 const name = ref(null)
@@ -111,10 +123,10 @@ const onSubmit = () => {
       password.value = null
     })
     .catch(error => {
-      alert("Algo deu errado...")
+      showNotification('negative', "Algo deu errado!");
     })
   } else {
-    alert("Por favor, preencha todos os campos corretamente")
+    showNotification('negative', "Por favor, preencha todos os campos corretamente");
   }
 }
 

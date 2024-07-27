@@ -118,6 +118,7 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
 import { api, authenticate } from 'src/boot/axios';
@@ -138,6 +139,17 @@ onMounted(() => {
 
 const srch = ref('');
 
+const $q = useQuasar();
+
+const showNotification = (type, msg) => {
+  $q.notify({
+    type: type,
+    message: msg,
+    position: 'bottom-right',
+    timeout: 3000
+  });
+};
+
 const columns = [
   { name: 'name', required: true, label: 'Nome do locatário', align: 'center', field: row => row.name, format: val => `${val}`},
   { name: 'email', align: 'center', label: 'Email', field: 'email'},
@@ -152,6 +164,7 @@ const getRows = (srch = '') => {
     .then(response => {
       if (Array.isArray(response.data.content)) {
         rows.value = response.data.content;
+        showNotification('positive', "Dados obtidos com sucesso!");
         console.log("Dados obtidos com sucesso");
       } else {
         console.error('A resposta da API não é um array:', response.data);
@@ -160,6 +173,7 @@ const getRows = (srch = '') => {
       console.log('Resposta da API:', response.data);
     })
     .catch(error => {
+      showNotification('negative', "Erro ao obter dados!");
       console.error("Erro ao obter dados:", error);
     });
 };
@@ -220,9 +234,11 @@ const createRow = (renterToCreate) => {
   .then(response => {
     console.log("Sucesso ao criar novo locatário", response);
     dialogs.value.register.visible = false;
+    showNotification('positive', "Sucesso ao criar novo locatário!");
     getRows();
   })
   .catch(error => {
+    showNotification('negative', "Erro ao criar locatário!");
     console.log("Erro ao criar locatário", error)
   })
 };
@@ -234,8 +250,10 @@ const showMore = (id) => {
     .then(response => {
       renterInfor.value = response.data;
       console.log(renterInfor.value);
+      showNotification('positive', "Detalhes obtidos com sucesso!");
     })
     .catch(error => {
+      showNotification('negative', "Erro ao obter detalhes do locatário!");
       console.error("Erro ao obter detalhes do locatário:", error);
     });
 };
@@ -244,9 +262,11 @@ const editRow = (renterInfor) => {
   api.put('/renter', renterInfor)
     .then(response => {
       console.log("Sucesso ao editar", response);
+      showNotification('positive', "Sucesso ao editar!");
       getRows();
     })
     .catch(error => {
+      showNotification('negative', "Erro ao editar!");
       console.log("Erro ao editar", error)
     })
 };
@@ -262,9 +282,11 @@ const deleteRow = (id) => {
       rows.value = rows.value.filter(row => row.id !== id);
       dialogs.value.delete.visible = false;
       console.log("Locatário excluído com sucesso");
+      showNotification('positive', "Locatário excluído com sucesso!");
       getRows();
     })
     .catch(error => {
+      showNotification('negative', "Erro ao excluir locatário!");
       console.error("Erro ao excluir locatário:", error);
     });
 };

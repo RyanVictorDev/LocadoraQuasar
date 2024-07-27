@@ -116,6 +116,7 @@
 
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
 import { api, authenticate } from 'src/boot/axios';
@@ -136,6 +137,17 @@ onMounted(() => {
 
 const srch = ref('');
 
+const $q = useQuasar();
+
+const showNotification = (type, msg) => {
+  $q.notify({
+    type: type,
+    message: msg,
+    position: 'bottom-right',
+    timeout: 3000
+  });
+};
+
 const columns = [
   { name: 'name', required: true, label: 'Nome da Editora', align: 'center', field: row => row.name, format: val => `${val}` },
   { name: 'actions', align: 'center', label: 'Ações', field: 'actions' },
@@ -148,6 +160,7 @@ const getRows = (srch = '') => {
     .then(response => {
       if (Array.isArray(response.data.content)) {
         rows.value = response.data.content;
+        showNotification('positive', "Dados obtidos com sucesso!");
         console.log("Dados obtidos com sucesso");
       } else {
         console.error('A resposta da API não é um array:', response.data);
@@ -156,6 +169,7 @@ const getRows = (srch = '') => {
       console.log('Resposta da API:', response.data);
     })
     .catch(error => {
+      showNotification('negative', "Erro ao obter dados!");
       console.error("Erro ao obter dados:", error);
     });
 }
@@ -216,11 +230,12 @@ const registerAction = () => {
 const createRow = (publisherToCreate) => {
   api.post('/publisher', publisherToCreate)
   .then(response => {
-    console.log("Deu CERTOOOO", response);
     dialogs.value.register.visible = false;
+    showNotification('positive', "Criado com sucesso!");
     getRows();
   })
   .catch(error => {
+    showNotification('negative', "Algo deu errado!");
     console.log("Moio", error)
   })
 };
@@ -228,10 +243,11 @@ const createRow = (publisherToCreate) => {
 const editRow = (editoraInfor) => {
   api.put('/publisher', editoraInfor)
     .then(response => {
-      console.log("DEUUUUUUUUUUUU", response);
+      showNotification('positive', "Editado com sucesso!");
       getRows();
     })
     .catch(error => {
+      showNotification('negative', "Erro ao editar...");
       console.log("deunao", error)
     })
 };
@@ -241,12 +257,18 @@ const deleteRow = (id) => {
     .then(() => {
       rows.value = rows.value.filter(row => row.id !== id);
       dialogs.value.delete.visible = false;
-      console.log("Editora excluída com sucesso");
+      showNotification('positive', "Excluído com sucesso!");
       getRows();
     })
     .catch(error => {
+      showNotification('negative', "Erro ao excluir...");
       console.error("Erro ao excluir editora:", error);
     });
+};
+
+const performDeleteAction = () => {
+  const { row } = dialogs.value.delete;
+  deleteRow(row.id);
 };
 
 const editoraInfor = ref([]);
@@ -255,17 +277,14 @@ const showMore = (id) => {
   api.get('/publisher/' + id)
     .then(response => {
       editoraInfor.value = response.data;
+      showNotification('positive', "Dados obtidos com sucesso!");
       console.log(editoraInfor.value);
     })
     .catch(error => {
+      showNotification('negative', "Erro ao obter detalhes da editora...");
       console.error("Erro ao obter detalhes da editora:", error);
     });
 }
-
-const performDeleteAction = () => {
-  const { row } = dialogs.value.delete;
-  deleteRow(row.id);
-};
 
 const performEditAction = () => {
   editRow(editoraInfor.value);

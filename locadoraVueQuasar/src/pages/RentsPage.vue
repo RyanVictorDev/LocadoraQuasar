@@ -43,6 +43,7 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
 import { api, authenticate } from 'src/boot/axios';
@@ -63,6 +64,17 @@ onMounted(() => {
 
 const srch = ref('');
 
+const $q = useQuasar();
+
+const showNotification = (type, msg) => {
+  $q.notify({
+    type: type,
+    message: msg,
+    position: 'bottom-right',
+    timeout: 3000
+  });
+};
+
 const columns = [
   { name: 'renterName', align: 'center', label: 'Locatário', field: 'renterName' },
   { name: 'bookName', align: 'center', label: 'Livro', field: 'bookName' },
@@ -80,6 +92,7 @@ const getRows = (srch = '') => {
       if (Array.isArray(response.data.content)) {
         rows.value = response.data.content;
         console.log("Dados obtidos com sucesso");
+        showNotification('positive', "Dados obtidos com sucesso!");
       } else {
         console.error('A resposta da API não é um array:', response.data);
         rows.value = [];
@@ -87,6 +100,7 @@ const getRows = (srch = '') => {
       console.log('Resposta da API:', response.data);
     })
     .catch(error => {
+      showNotification('negative', "Erro ao obter dados!");
       console.error("Erro ao obter dados:", error);
     });
 };
@@ -114,9 +128,11 @@ const showMore = () => {
   api.get('/rent')
     .then(response => {
       rentInfor.value = response.data;
+      showNotification('positive', "Detalhes obtidos com sucesso!");
       console.log(rentInfor.value);
     })
     .catch(error => {
+      showNotification('negative', "Erro ao obter detalhes do locatário!");
       console.error("Erro ao obter detalhes do locatário:", error);
     });
 };
@@ -125,10 +141,12 @@ const editRow = (id) => {
   api.put('/rent/' + id)
     .then(response => {
       console.log("Sucesso ao editar", response);
+      showNotification('positive', "Sucesso ao devolver!");
       getRows();
     })
     .catch(error => {
       console.log("Erro ao editar", error)
+      showNotification('negative', "Erro ao devolver!");
       console.log(rentInfor);
     })
 };
@@ -138,14 +156,4 @@ const performDeliveryAction = (teste) => {
   console.log(teste);
   dialogs.value.rent.visible = false;
 };
-
-
-const onSubmit = () => {
-  console.log("Teste");
-};
-
-// const performEditAction = () => {
-//   const { row } = dialogs.value.edit;
-//   dialogs.value.edit.visible = false;
-// };
 </script>
