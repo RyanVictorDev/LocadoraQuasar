@@ -5,16 +5,17 @@
         <div class="text-weight-bold q-mr-lg">
           Aluguéis
         </div>
+        <q-form @submit="getRows(srch)" class="q-ml-sm col" input-style="min-width: 100%">
+          <q-input v-model="srch" label="Pesquisar..." class="q-ml-sm col" input-style="min-width: 100%">
+            <template v-slot:append>
+              <q-icon v-if="srch !== ''" name="close" @click="srch = '', getRows(srch)" class="cursor-pointer" />
+            </template>
 
-        <q-input v-model="srch" label="Pesquisar..." class="q-ml-sm col" input-style="min-width: 100%">
-          <template v-slot:append>
-            <q-icon v-if="srch !== ''" name="close" @click="srch = '', getRows(srch)" class="cursor-pointer" />
-          </template>
-
-          <template v-slot:after>
-            <q-btn round dense flat icon="search" @click="getRows(srch)"/>
-          </template>
-        </q-input>
+            <template v-slot:after>
+              <q-btn round dense flat icon="search" @click="getRows(srch)"/>
+            </template>
+          </q-input>
+        </q-form>
       </div>
 
       <TableComponent
