@@ -6,7 +6,7 @@
           Livros
           <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="openRegisterDialog"/>
         </div>
-        
+
         <q-form @submit="getRows(srch)" class="q-ml-sm col" input-style="min-width: 100%">
           <q-input v-model="srch" label="Pesquisar..." class="q-ml-sm col" input-style="min-width: 100%">
             <template v-slot:append>
@@ -69,8 +69,8 @@
           </q-card-section>
 
           <q-card-section>
-            <q-form @submit.prevent="rentAction" class="q-gutter-md q-my-auto">
-              <q-input v-model="bookToRent.bookId" label="ID do livro" filled lazy-rules/>
+            <q-form @submit.prevent="rentAction(dialogs.rent.row.id)" class="q-gutter-md q-my-auto">
+              <q-input v-model="dialogs.rent.row.name" label="Título do livro" filled lazy-rules/>
               <q-input v-model="bookToRent.renterId" label="ID do locatário" filled lazy-rules/>
               <q-input v-model="bookToRent.deadline" label="Devolução" type="date" mask="####-##-##" fill-mask filled lazy-rules/>
 
@@ -309,8 +309,9 @@ const rentBook = () => {
     });
 };
 
-const rentAction = () => {
+const rentAction = (id) => {
   dialogs.value.rent.visible = false;
+  bookToRent.value.bookId = id;
   rentBook(bookToRent.value);
 };
 
