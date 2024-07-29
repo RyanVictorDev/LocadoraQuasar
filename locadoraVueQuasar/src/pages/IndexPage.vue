@@ -47,7 +47,8 @@ const columns = [
 
 const rows = ref([
   {name: 'fulano', totalLoans: '10', activeRentals: '2'},
-  {name: 'Ciclano', totalLoans: '5', activeRentals: '2'}
+  {name: 'Ciclano', totalLoans: '5', activeRentals: '2'},
+  {name: 'Joana', totalLoans: '8', activeRentals: '3'},
 ]);
 
 </script>

@@ -123,7 +123,6 @@ const rows = [
     email: 'reidanet@gmail.com',
     actions: '',
   },
-
   {
     name: 'Ednaldo Pereira',
     permission: 'Locatário',

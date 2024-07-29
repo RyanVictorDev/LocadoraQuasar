@@ -184,6 +184,7 @@ const getRows = (srch = '') => {
     .then(response => {
       if (Array.isArray(response.data.content)) {
         rows.value = response.data.content;
+        showNotification('positive', "Dados obtidos com sucesso");
         console.log("Dados obtidos com sucesso");
       } else {
         console.error('A resposta da API não é um array:', response.data);
