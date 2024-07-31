@@ -3,10 +3,10 @@
     <div class="main">
       <div class="flex justify-evenly">
         <div>
-          <chartBarComponent/>
+          <chartBarComponent />
         </div>
         <div>
-          <chartPieComponent/>
+          <chartPieComponent />
         </div>
       </div>
 
@@ -26,21 +26,15 @@ import chartBarComponent from 'src/components/chartBarComponent.vue';
 import chartPieComponent from 'src/components/chartPieComponent.vue';
 import TableComponent from 'src/components/TableComponent.vue';
 
-defineOptions({
-  name: 'IndexPage',
-});
-
-onMounted(() => {
-  authenticate()
-    .then(() => {
-      console.log("Sucesso ao autenticar");
-    })
-    .catch(error => {
-      console.error('Erro na autenticação:', error);
-    });
-});
-
 const $q = useQuasar();
+const rows = ref([]);
+const srch = ref('');
+
+const columns = [
+  { name: 'renterName', required: true, label: 'Usuário', align: 'center', field: row => row.name, format: val => `${val}`},
+  { name: 'totalLoans', align: 'center', label: 'Total de empréstimos', field: 'totalLoans' },
+  { name: 'activeRentals', align: 'center', label: 'Aluguéis ativos', field: 'activeRentals' },
+];
 
 const showNotification = (type, msg) => {
   $q.notify({
@@ -51,39 +45,20 @@ const showNotification = (type, msg) => {
   });
 };
 
-const columns = [
-  { name: 'user', required: true, label: 'Usuário', align: 'center', field: row => row.name, format: val => `${val}`},
-  { name: 'totalLoans', align: 'center', label: 'Total de empréstimos', field: 'totalLoans'},
-  { name: 'activeRentals', align: 'center', label: 'Aluguéis ativos', field: 'activeRentals'},
-];
-
-const rows = ref([]);
-
-const getRents = () => {
-  api.get('/rent')
-    .then(response => {
-      if (Array.isArray(response.data.content)) {
-        // rows.value = response.data.content;
-        const teste = response.data.content.length;
-        console.log(teste);
-        showNotification('positive', "Dados obtidos com sucesso");
-        showNotification('positive', teste);
-      } else {
-        console.error('A resposta da API não é um array:', response.data);
-        rows.value = [];
-      }
-      console.log('Resposta da API:', response.data);
+onMounted(() => {
+  authenticate()
+    .then(() => {
+      getRents();
+      console.log("Sucesso ao autenticar");
     })
     .catch(error => {
-      showNotification('negative', "Erro ao obter dados!");
-      console.error("Erro ao obter dados:", error);
+      console.error('Erro na autenticação:', error);
     });
-};
-
+});
 </script>
 
 <style scoped>
-.flex{
+.flex {
   display: flex;
   width: 100%;
   max-height: 350px;

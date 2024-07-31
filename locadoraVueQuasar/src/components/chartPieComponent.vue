@@ -24,7 +24,6 @@ const getRents = async () => {
   try {
     await authenticate();
     const response = await api.get('/rent/most-rented');
-    console.log('Resposta da API:', response.data);
     mostRented.value = response.data;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");

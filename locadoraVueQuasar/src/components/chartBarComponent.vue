@@ -27,7 +27,6 @@ const getRents = async () => {
   try {
     await authenticate();
     const response = await api.get('/rent');
-    console.log('Resposta da API:', response.data.totalElements);
     rentsQtd.value = response.data.totalElements;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
@@ -43,7 +42,6 @@ const getRentsInTime = async () => {
         status: 'IN_TIME'
       }
     });
-    console.log('Resposta da API:', response.data.totalElements);
     inTime.value = response.data.totalElements;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
@@ -59,7 +57,6 @@ const getRentsDelivered = async () => {
         status: 'DELIVERED'
       }
     });
-    console.log('Resposta da API:', response.data.totalElements);
     delivered.value = response.data.totalElements;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
@@ -75,7 +72,6 @@ const getRentsDelayed = async () => {
         status: 'DELAYED'
       }
     });
-    console.log('Resposta da API:', response.data.totalElements);
     delayed.value = response.data.totalElements;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
