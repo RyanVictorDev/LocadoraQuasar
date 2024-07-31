@@ -8,8 +8,9 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Chart, registerables } from 'chart.js';
+import { api, authenticate } from 'src/boot/axios';
 
 Chart.register(...registerables);
 
@@ -17,15 +18,31 @@ defineOptions({
   name: 'chartPieComponent'
 });
 
-onMounted(() => {
+const mostRented = ref('');
+
+const getRents = async () => {
+  try {
+    await authenticate();
+    const response = await api.get('/rent/most-rented');
+    console.log('Resposta da API:', response.data);
+    mostRented.value = response.data;
+  } catch (error) {
+    showNotification('negative', "Erro ao obter dados!");
+    console.error("Erro ao obter dados:", error);
+  }
+};
+
+onMounted( async () => {
+  await getRents();
+
   const ctx2 = document.getElementById('LivrosChart').getContext('2d');
   new Chart(ctx2, {
     type: 'pie',
     data: {
-      labels: ['Harry Potter', 'The Boys', 'Receitas da Vovó'],
+      labels: [mostRented.value.bookName, 'The Boys', 'Receitas da Vovó'],
       datasets: [{
         label: 'Livros mais alugados',
-        data: [999, 400, 297],
+        data: [mostRented.value.rentedNumber, 1, 2],
         backgroundColor: ['#509358', '#B22222', '#46769A'],
         borderWidth: 0
       }]

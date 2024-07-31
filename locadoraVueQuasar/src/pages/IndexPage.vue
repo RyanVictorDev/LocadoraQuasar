@@ -19,6 +19,7 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import { api, authenticate } from 'src/boot/axios';
 import chartBarComponent from 'src/components/chartBarComponent.vue';
@@ -39,17 +40,45 @@ onMounted(() => {
     });
 });
 
+const $q = useQuasar();
+
+const showNotification = (type, msg) => {
+  $q.notify({
+    type: type,
+    message: msg,
+    position: 'bottom-right',
+    timeout: 3000
+  });
+};
+
 const columns = [
   { name: 'user', required: true, label: 'Usuário', align: 'center', field: row => row.name, format: val => `${val}`},
   { name: 'totalLoans', align: 'center', label: 'Total de empréstimos', field: 'totalLoans'},
   { name: 'activeRentals', align: 'center', label: 'Aluguéis ativos', field: 'activeRentals'},
 ];
 
-const rows = ref([
-  {name: 'fulano', totalLoans: '10', activeRentals: '2'},
-  {name: 'Ciclano', totalLoans: '5', activeRentals: '2'},
-  {name: 'Joana', totalLoans: '8', activeRentals: '3'},
-]);
+const rows = ref([]);
+
+const getRents = () => {
+  api.get('/rent')
+    .then(response => {
+      if (Array.isArray(response.data.content)) {
+        // rows.value = response.data.content;
+        const teste = response.data.content.length;
+        console.log(teste);
+        showNotification('positive', "Dados obtidos com sucesso");
+        showNotification('positive', teste);
+      } else {
+        console.error('A resposta da API não é um array:', response.data);
+        rows.value = [];
+      }
+      console.log('Resposta da API:', response.data);
+    })
+    .catch(error => {
+      showNotification('negative', "Erro ao obter dados!");
+      console.error("Erro ao obter dados:", error);
+    });
+};
 
 </script>
 

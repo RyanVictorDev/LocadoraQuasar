@@ -8,8 +8,9 @@
 </template>
 
 <script setup>
-import { onMounted } from 'vue';
+import { ref, onMounted } from 'vue';
 import { Chart, registerables } from 'chart.js';
+import { api, authenticate } from 'src/boot/axios';
 
 Chart.register(...registerables);
 
@@ -17,7 +18,77 @@ defineOptions({
   name: 'chartBarComponent'
 });
 
-onMounted(() => {
+const rentsQtd = ref(0);
+const inTime = ref(0);
+const delivered = ref(0);
+const delayed = ref(0);
+
+const getRents = async () => {
+  try {
+    await authenticate();
+    const response = await api.get('/rent');
+    console.log('Resposta da API:', response.data.totalElements);
+    rentsQtd.value = response.data.totalElements;
+  } catch (error) {
+    showNotification('negative', "Erro ao obter dados!");
+    console.error("Erro ao obter dados:", error);
+  }
+};
+
+const getRentsInTime = async () => {
+  try {
+    await authenticate();
+    const response = await api.get('/rent', {
+      params: {
+        status: 'IN_TIME'
+      }
+    });
+    console.log('Resposta da API:', response.data.totalElements);
+    inTime.value = response.data.totalElements;
+  } catch (error) {
+    showNotification('negative', "Erro ao obter dados!");
+    console.error("Erro ao obter dados:", error);
+  }
+};
+
+const getRentsDelivered = async () => {
+  try {
+    await authenticate();
+    const response = await api.get('/rent', {
+      params: {
+        status: 'DELIVERED'
+      }
+    });
+    console.log('Resposta da API:', response.data.totalElements);
+    delivered.value = response.data.totalElements;
+  } catch (error) {
+    showNotification('negative', "Erro ao obter dados!");
+    console.error("Erro ao obter dados:", error);
+  }
+};
+
+const getRentsDelayed = async () => {
+  try {
+    await authenticate();
+    const response = await api.get('/rent', {
+      params: {
+        status: 'DELAYED'
+      }
+    });
+    console.log('Resposta da API:', response.data.totalElements);
+    delayed.value = response.data.totalElements;
+  } catch (error) {
+    showNotification('negative', "Erro ao obter dados!");
+    console.error("Erro ao obter dados:", error);
+  }
+};
+
+onMounted(async () => {
+  await getRents();
+  await getRentsInTime();
+  await getRentsDelivered();
+  await getRentsDelayed();
+
   const ctx = document.getElementById('relacoesLivrosChart').getContext('2d');
   new Chart(ctx, {
     type: 'bar',
@@ -25,7 +96,7 @@ onMounted(() => {
       labels: ['Alugados', 'Atrasados', 'Devolvidos no prazo', 'Devolvidos fora do prazo'],
       datasets: [{
         label: 'Relação de livros',
-        data: [400, 500, 184, 395],
+        data: [rentsQtd.value, inTime.value, delivered.value, delayed.value],
         backgroundColor: ['#509358', '#B22222', '#46769A', '#C65F15'],
         borderWidth: 0,
         borderRadius: 5
@@ -36,7 +107,7 @@ onMounted(() => {
       maintainAspectRatio: false,
       scales: {
         y: {
-          // beginAtZero: true
+          beginAtZero: true
         }
       }
     }
@@ -57,7 +128,6 @@ onMounted(() => {
 }
 
 .title {
-  /* margin-bottom: 10px; */
   font-weight: bold;
 }
 

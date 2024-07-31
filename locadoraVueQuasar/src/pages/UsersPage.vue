@@ -42,8 +42,8 @@
               <q-input v-model="userToCreate.password" label="Senha" type="password" filled lazy-rules :rules="[val => val && val.length > 0 || 'Adicione algo']"/>
 
               <div class="q-gutter-sm q-px-auto">
-                <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="Editor" label="Editor" />
-                <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="Locatário" label="Locatário" />
+                <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="ADMIN" label="Editor" />
+                <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="VISITOR" label="Locatário" />
               </div>
 
               <q-card-actions align="right">
@@ -87,6 +87,7 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import TableComponent from 'src/components/TableComponent.vue';
 import { api, authenticate } from 'src/boot/axios';
@@ -95,83 +96,55 @@ defineOptions({
   name: 'UsersPage',
 });
 
+onMounted(() => {
+  authenticate()
+    .then(() => {
+      getRows();
+    })
+    .catch(error => {
+      console.error('Erro na autenticação:', error);
+    });
+});
+
+const $q = useQuasar();
+
+const showNotification = (type, msg) => {
+  $q.notify({
+    type: type,
+    message: msg,
+    position: 'bottom-right',
+    timeout: 3000
+  });
+};
+
 const srch = ref('');
 
 const columns = [
-  { name: 'userName', required: true, label: 'Nome do usuário', align: 'center', field: row => row.name, format: val => `${val}`},
-  { name: 'permission', align: 'center', label: 'Permissão', field: 'permission'},
-  { name: 'email', align: 'center', label: 'Email', field: 'email'},
+  { name: 'name', required: true, label: 'Nome do usuário', align: 'center', field: row => row.name, format: val => `${val}`},
+  { name: 'role', align: 'center', label: 'Permissão', field: 'permission'},
   { name: 'actions', align: 'center', label: 'Ações', field: 'actions'},
 ]
 
-const rows = [
-  {
-    name: 'Fulano',
-    permission: 'Editor',
-    email: 'fulano@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Siclano',
-    permission: 'Locatário',
-    email: 'siclano@hotmail.com',
-    actions: 'Ação',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-  {
-    name: 'Ednaldo Pereira',
-    permission: 'Locatário',
-    email: 'reidanet@gmail.com',
-    actions: '',
-  },
-]
+const rows = ref([]);
+
+const getRows = (srch = '') => {
+  api.get('/users', { params: { search: srch } })
+    .then(response => {
+      if (Array.isArray(response)) {
+        rows.value = response.data.content;
+        showNotification('positive', "Dados obtidos com sucesso");
+        console.log("Dados obtidos com sucesso");
+      } else {
+        console.error('A resposta da API não é um array:', response.data);
+        rows.value = [];
+      }
+      console.log('Resposta da API:', response.data);
+    })
+    .catch(error => {
+      showNotification('negative', "Erro ao obter dados!");
+      console.error("Erro ao obter dados:", error);
+    });
+};
 
 const dialogs = ref({
   register: {
@@ -206,8 +179,6 @@ const handleAction = ({ row, icon }) => {
   }
 };
 
-const shape = ref('line')
-
 const userToCreate = ref({
   name: '',
   email: '',
@@ -215,12 +186,27 @@ const userToCreate = ref({
   role: ''
 });
 
+const createRow = (userToCreate) => {
+  api.post('/users', userToCreate)
+    .then(response => {
+      console.log("Sucesso ao criar novo usuário", response);
+      dialogs.value.register.visible = false;
+      showNotification('positive', "Usuário criado com sucesso!");
+      getRows();
+    })
+    .catch(error => {
+      showNotification('negative', "Erro ao criar usuário!");
+      console.log("Erro ao criar usuário", error);
+    });
+};
+
 const openRegisterDialog = () => {
   dialogs.value.register.visible = true;
 };
 
 const registerAction = (shape) => {
   userToCreate.value.role = shape
+  createRow(userToCreate.value);
   console.log(userToCreate);
 };
 </script>
