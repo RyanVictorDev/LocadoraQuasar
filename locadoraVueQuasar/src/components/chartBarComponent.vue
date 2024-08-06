@@ -1,10 +1,10 @@
 <template>
-  <q-page>
+  <div>
     <div class="chart-container">
       <div class="title">Relações de livros</div>
       <canvas id="relacoesLivrosChart"></canvas>
     </div>
-  </q-page>
+  </div>
 </template>
 
 <script setup>

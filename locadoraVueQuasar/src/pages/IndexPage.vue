@@ -83,7 +83,15 @@ const getRows = (srch = '') => {
 .flex {
   display: flex;
   width: 100%;
-  max-height: 350px;
+  /* max-height: 350px; */
   flex-direction: row;
+  margin-bottom: 1rem;
+}
+
+@media (max-width: 900px) {
+  .flex {
+    flex-direction: column;
+    gap: 5rem;
+  }
 }
 </style>

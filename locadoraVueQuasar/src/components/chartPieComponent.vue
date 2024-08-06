@@ -1,10 +1,10 @@
 <template>
-  <q-page>
+  <div>
     <div class="chart-container">
       <div class="title">Livros mais alugados</div>
       <canvas id="LivrosChart"></canvas>
     </div>
-  </q-page>
+  </div>
 </template>
 
 <script setup>
@@ -95,6 +95,7 @@ onMounted( async () => {
 </script>
 
 <style scoped>
+
 .chart-container {
   border-radius: 5px;
   padding: 15px;

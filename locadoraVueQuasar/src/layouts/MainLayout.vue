@@ -190,4 +190,15 @@ const miniState = ref(true)
 .logout {
   border-radius: 10px;
 }
+
+@media (max-width: 600px) {
+  .card{
+    box-shadow: none;
+  }
+
+  .bgLayoutLogin {
+    background: rgb(240, 240, 240);
+  }
+}
+
 </style>
