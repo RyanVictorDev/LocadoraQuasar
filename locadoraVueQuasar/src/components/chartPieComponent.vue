@@ -8,9 +8,21 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref, onMounted } from 'vue';
 import { Chart, registerables } from 'chart.js';
 import { api, authenticate } from 'src/boot/axios';
+
+const $q = useQuasar();
+
+const showNotification = (type, msg) => {
+  $q.notify({
+    type: type,
+    message: msg,
+    position: 'bottom-right',
+    timeout: 3000
+  });
+};
 
 Chart.register(...registerables);
 
@@ -18,13 +30,38 @@ defineOptions({
   name: 'chartPieComponent'
 });
 
-const mostRented = ref('');
+const mostRented1 = ref('');
+const mostRented2 = ref('');
+const mostRented3 = ref('');
 
-const getRents = async () => {
+
+const getRents1 = async () => {
   try {
     await authenticate();
-    const response = await api.get('/rent/most-rented');
-    mostRented.value = response.data;
+    const response = await api.get('/rent/most-rented/1');
+    mostRented1.value = response.data;
+  } catch (error) {
+    showNotification('negative', "Erro ao obter dados!");
+    console.error("Erro ao obter dados:", error);
+  }
+};
+
+const getRents2 = async () => {
+  try {
+    await authenticate();
+    const response = await api.get('/rent/most-rented/2');
+    mostRented2.value = response.data;
+  } catch (error) {
+    showNotification('negative', "Erro ao obter dados!");
+    console.error("Erro ao obter dados:", error);
+  }
+};
+
+const getRents3 = async () => {
+  try {
+    await authenticate();
+    const response = await api.get('/rent/most-rented/3');
+    mostRented3.value = response.data;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
     console.error("Erro ao obter dados:", error);
@@ -32,16 +69,19 @@ const getRents = async () => {
 };
 
 onMounted( async () => {
-  await getRents();
+  await getRents1();
+  await getRents2();
+  await getRents3();
+
 
   const ctx2 = document.getElementById('LivrosChart').getContext('2d');
   new Chart(ctx2, {
     type: 'pie',
     data: {
-      labels: [mostRented.value.bookName, 'The Boys', 'Receitas da Vovó'],
+      labels: [mostRented1.value.bookName, mostRented2.value.bookName, mostRented3.value.bookName],
       datasets: [{
         label: 'Livros mais alugados',
-        data: [mostRented.value.rentedNumber, 1, 2],
+        data: [mostRented1.value.rentedNumber, mostRented2.value.rentedNumber, mostRented3.value.rentedNumber],
         backgroundColor: ['#509358', '#B22222', '#46769A'],
         borderWidth: 0
       }]

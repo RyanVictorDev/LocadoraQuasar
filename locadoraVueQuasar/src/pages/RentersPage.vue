@@ -4,7 +4,7 @@
       <div class="row items-center q-mx-auto text-h5">
         <div class="text-weight-bold q-mr-lg">
           Locatários
-          <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="registerAction"/>
+          <q-btn push color="teal-10" label="Cadastrar" class="q-ml-sm" @click="openRegister"/>
         </div>
 
         <q-form @submit="getRows(srch)" class="q-ml-sm col" input-style="min-width: 100%">
@@ -226,8 +226,11 @@ const renterToCreate = ref({
   cpf: ''
 });
 
-const registerAction = () => {
+const openRegister = () => {
   dialogs.value.register.visible = true;
+}
+
+const registerAction = () => {
   createRow(renterToCreate.value);
 };
 

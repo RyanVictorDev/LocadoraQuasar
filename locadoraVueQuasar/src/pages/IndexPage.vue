@@ -27,14 +27,15 @@ import chartPieComponent from 'src/components/chartPieComponent.vue';
 import TableComponent from 'src/components/TableComponent.vue';
 
 const $q = useQuasar();
-const rows = ref([]);
 const srch = ref('');
 
 const columns = [
-  { name: 'renterName', required: true, label: 'Usuário', align: 'center', field: row => row.name, format: val => `${val}`},
-  { name: 'totalLoans', align: 'center', label: 'Total de empréstimos', field: 'totalLoans' },
-  { name: 'activeRentals', align: 'center', label: 'Aluguéis ativos', field: 'activeRentals' },
+  { name: 'name', required: true, label: 'Locatário', align: 'center', field: row => row.name, format: val => `${val}`},
+  { name: 'totalRents', align: 'center', label: 'Total de empréstimos', field: 'totalRents' },
+  { name: 'activeRents', align: 'center', label: 'Aluguéis ativos', field: 'activeRents' },
 ];
+
+const rows = ref([]);
 
 const showNotification = (type, msg) => {
   $q.notify({
@@ -48,13 +49,34 @@ const showNotification = (type, msg) => {
 onMounted(() => {
   authenticate()
     .then(() => {
-      getRents();
+      getRows();
       console.log("Sucesso ao autenticar");
     })
     .catch(error => {
       console.error('Erro na autenticação:', error);
     });
 });
+
+const getRows = (srch = '') => {
+  api.get('/rent/renters')
+    .then(response => {
+      if (Array.isArray(response.data.content)) {
+        rows.value = response.data.content;
+        showNotification('positive', "Dados obtidos com sucesso!");
+        console.log("Dados obtidos com sucesso");
+      } else {
+        console.error('A resposta da API não é um array:', response.data);
+        rows.value = [];
+      }
+      console.log('Resposta da API:', response.data);
+    })
+    .catch(error => {
+      showNotification('negative', "Socorro!");
+      console.error("Erro ao obter dados:", error);
+    });
+};
+
+
 </script>
 
 <style scoped>

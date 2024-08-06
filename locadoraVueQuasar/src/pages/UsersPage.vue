@@ -55,16 +55,25 @@
         </q-card>
       </q-dialog>
 
-      <q-dialog v-model="dialogs.delete.visible" persistent>
+      <q-dialog v-model="dialogs.view.visible" persistent>
         <q-card>
-          <q-card-section class="row items-center">
-            <q-avatar icon="delete" color="red" text-color="white" />
-            <span class="q-ml-sm">Você tem certeza que deseja excluir o usuário {{ dialogs.delete.row.name }}?</span>
+          <q-card-section class="row items-center column">
+            <div>
+              <q-avatar icon="visibility" color="blue" text-color="white" />
+              <span class="q-ml-sm text-h6">Detalhes do usuário {{ dialogs.view.row.name }}</span>
+            </div>
+
+            <div class="q-ml-sm ">
+              <div class="column q-mt-md">
+                <span class="q-ml-sm col"><q-icon name="key"/> Id: {{ userInfor.id }}</span>
+                <span class="q-ml-sm col"><q-icon name="person"/> Nome: {{ userInfor.name }}</span>
+                <span class="q-ml-sm col"><q-icon name="insert_drive_file"/> Cargo: {{ userInfor.role }}</span>
+              </div>
+            </div>
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Cancelar" color="primary" @click="dialogs.delete.visible = false" />
-            <q-btn flat label="Excluir" color="primary" @click="performDeleteAction" />
+            <q-btn flat label="Fechar" color="primary" @click="dialogs.view.visible = false" />
           </q-card-actions>
         </q-card>
       </q-dialog>
@@ -76,10 +85,23 @@
             <span class="q-ml-sm">Você tem certeza que deseja editar o usuário {{ dialogs.edit.row.name }}?</span>
           </q-card-section>
 
-          <q-card-actions align="right">
-            <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
-            <q-btn flat label="Editar" color="primary" @click="performEditAction" />
-          </q-card-actions>
+          <q-card-section>
+            <q-form @submit="performEditAction(shape)" class="q-gutter-md q-my-auto">
+              <q-input v-model="userInfor.name" label="Nome do usuário" filled lazy-rules :rules="[val => val && val.length > 3 || 'É nescessário ter mais de três caracteres']"/>
+              <q-input v-model="userInfor.email" label="Email" filled lazy-rules :rules="[val => val && val.length > 0 || 'Adicione algo']"/>
+              <q-input v-model="userInfor.password" label="Senha" type="password" filled lazy-rules :rules="[val => val && val.length > 0 || 'Adicione algo']"/>
+
+              <div class="q-gutter-sm q-px-auto">
+                <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="ADMIN" label="Editor" />
+                <q-radio v-model="shape" checked-icon="task_alt" unchecked-icon="panorama_fish_eye" val="VISITOR" label="Locatário" />
+              </div>
+
+              <q-card-actions align="right">
+                <q-btn flat label="Cancelar" color="primary" @click="dialogs.edit.visible = false" />
+                <q-btn flat label="Salvar" type="submit" color="primary"/>
+              </q-card-actions>
+            </q-form>
+          </q-card-section>
         </q-card>
       </q-dialog>
     </div>
@@ -121,7 +143,7 @@ const srch = ref('');
 
 const columns = [
   { name: 'name', required: true, label: 'Nome do usuário', align: 'center', field: row => row.name, format: val => `${val}`},
-  { name: 'role', align: 'center', label: 'Permissão', field: 'permission'},
+  { name: 'role', align: 'center', label: 'Permissão', field: 'role'},
   { name: 'actions', align: 'center', label: 'Ações', field: 'actions'},
 ]
 
@@ -130,15 +152,10 @@ const rows = ref([]);
 const getRows = (srch = '') => {
   api.get('/users', { params: { search: srch } })
     .then(response => {
-      if (Array.isArray(response)) {
-        rows.value = response.data.content;
-        showNotification('positive', "Dados obtidos com sucesso");
-        console.log("Dados obtidos com sucesso");
-      } else {
-        console.error('A resposta da API não é um array:', response.data);
-        rows.value = [];
-      }
-      console.log('Resposta da API:', response.data);
+      rows.value = response.data.content;
+      showNotification('positive', "Dados obtidos com sucesso");
+      console.log("Dados obtidos com sucesso");
+      console.log('Resposta da API:', response.data.content);
     })
     .catch(error => {
       showNotification('negative', "Erro ao obter dados!");
@@ -153,10 +170,6 @@ const dialogs = ref({
       name: ''
     }
   },
-  delete: {
-    visible: false,
-    row: null
-  },
   view: {
     visible: false,
     row: null
@@ -167,15 +180,20 @@ const dialogs = ref({
   }
 });
 
-const icons = ['edit', 'delete'];
+const icons = ['visibility', 'edit'];
 
 const handleAction = ({ row, icon }) => {
   if (icon === 'delete') {
     dialogs.value.delete.row = row;
     dialogs.value.delete.visible = true;
+  } else if (icon === 'visibility') {
+    dialogs.value.view.row = row;
+    dialogs.value.view.visible = true;
+    showMore(row.id);
   } else if (icon === 'edit') {
     dialogs.value.edit.row = row;
     dialogs.value.edit.visible = true;
+    showMore(row.id);
   }
 };
 
@@ -208,5 +226,39 @@ const registerAction = (shape) => {
   userToCreate.value.role = shape
   createRow(userToCreate.value);
   console.log(userToCreate);
+};
+
+const userInfor = ref([]);
+
+const showMore = (id) => {
+  api.get('/users/' + id)
+    .then(response => {
+      userInfor.value = response.data;
+      console.log(userInfor.value);
+      showNotification('positive', "Detalhes obtidos com sucesso!");
+    })
+    .catch(error => {
+      showNotification('negative', "Erro ao obter detalhes do usuario!");
+      console.error("Erro ao obter detalhes do usuario:", error);
+    });
+};
+
+const editRow = (userInfor) => {
+  api.put('/users', userInfor)
+    .then(response => {
+      console.log("Sucesso ao editar", response);
+      showNotification('positive', "Sucesso ao editar!");
+      getRows();
+    })
+    .catch(error => {
+      showNotification('negative', "Erro ao editar!");
+      console.log("Erro ao editar", error)
+    })
+};
+
+const performEditAction = (shape) => {
+  renterInfor.value.role = shape;
+  editRow(renterInfor.value);
+  dialogs.value.edit.visible = false;
 };
 </script>
