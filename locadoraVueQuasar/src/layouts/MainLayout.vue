@@ -1,7 +1,7 @@
 <template>
-  <q-layout v-if="!log" class="bgLayoutLogin spacer-top">
+  <q-layout v-if="!log" class="bgLayoutLogin flex">
     <div class="q-pa-lg q-mx-auto card" style="max-width: 400px;">
-      <div class="">
+      <div class="form">
           <q-img
           src="../assets/altislab_logo.png"
           style="height: 150px;"
@@ -150,21 +150,25 @@ const miniState = ref(true)
 
 <style>
 .bgLayoutLogin{
-  background: linear-gradient(to right, #4b8086 8%, #6be2ab 100%);
+  background: linear-gradient(to right, #b3b3b3 8%, #f1fdf7 100%);
+}
+
+.form{
+  width: 100%;
 }
 
 .card{
+  width: 40%;
+  margin-top: auto;
+  margin-bottom: auto;
+  padding: 2rem;
   border-radius: 5px;
   background-color: rgb(240, 240, 240);
   box-shadow: 2px 2px 5px 1px rgba(97, 97, 97, 0.58);
 }
 
-.spacer{
-  margin-top: 40px;
-}
-
-.spacer-top{
-  padding-top: 6%;
+.flex{
+  display: flex;
 }
 
 .whiteFont {
