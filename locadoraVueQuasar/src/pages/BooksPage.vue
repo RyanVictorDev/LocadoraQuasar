@@ -52,6 +52,7 @@
                   </q-item>
                 </q-list>
               </q-btn-dropdown>
+
               <q-card-actions align="right">
                 <q-btn flat label="Cancelar" color="primary" @click="dialogs.register.visible = false"/>
                 <q-btn flat label="Salvar" type="submit" color="primary"/>
@@ -71,8 +72,18 @@
           <q-card-section>
             <q-form @submit.prevent="rentAction(dialogs.rent.row.id)" class="q-gutter-md q-my-auto">
               <q-input v-model="dialogs.rent.row.name" label="Título do livro" filled lazy-rules/>
-              <q-input v-model="bookToRent.renterId" label="ID do locatário" filled lazy-rules/>
+              <q-input v-model="idRenter" label="ID do locatário" filled lazy-rules/>
               <q-input v-model="bookToRent.deadline" label="Devolução" type="date" mask="####-##-##" fill-mask filled lazy-rules/>
+
+              <q-btn-dropdown color="primary" label="Escolha o locatário" class="q-mt-md">
+                <q-list v-for="renterItem in renters" :key="renterItem.name">
+                  <q-item clickable v-close-popup @click="onItemClickRent(renterItem)">
+                    <q-item-section>
+                      <q-item-label>{{renterItem.name}}</q-item-label>
+                    </q-item-section>
+                  </q-item>
+                </q-list>
+              </q-btn-dropdown>
 
               <q-card-actions align="right">
                 <q-btn flat label="Cancelar" color="primary" @click="dialogs.rent.visible = false"/>
@@ -149,6 +160,7 @@ onMounted(() => {
     .then(() => {
       getRows();
       getPublishers();
+      getRents();
     })
     .catch(error => {
       console.error('Erro na autenticação:', error);
@@ -290,11 +302,29 @@ const showMore = (id) => {
     });
 };
 
+const renters = ref([])
+const idRenter = ref('')
+
+const getRents = () => {
+  api.get('/renter')
+  .then(response => {
+    renters.value = response.data.content
+    console.log("SHOW", renters, response)
+  })
+  .catch(error => {
+    console.log(error)
+  })
+}
+
 const bookToRent = ref({
-  renterId: '',
+  renterId: idRenter,
   bookId: '',
   deadline: '',
 });
+
+const onItemClickRent = (rentItem) => {
+  idRenter.value = rentItem.id;
+}
 
 const rentBook = () => {
   api.post('/rent', bookToRent.value)
