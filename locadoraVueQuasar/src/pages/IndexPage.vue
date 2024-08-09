@@ -90,6 +90,7 @@ const getRows = (srch = '') => {
 
 @media (max-width: 900px) {
   .flex {
+    margin-inline: auto;
     flex-direction: column;
     gap: 5rem;
   }

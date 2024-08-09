@@ -112,6 +112,10 @@ onMounted(async () => {
 </script>
 
 <style scoped>
+  #relacoesLivrosChart{
+    margin-bottom: 1rem;
+  }
+
 .chart-container {
   border-radius: 5px;
   padding: 15px;
@@ -119,7 +123,8 @@ onMounted(async () => {
   background-color: rgb(255, 255, 255);
   width: 100%;
   min-width: 450px;
-  height: 300px;
+  max-width: fit-content;
+  height: 220px;
   text-align: center;
 }
 
@@ -130,5 +135,11 @@ onMounted(async () => {
 canvas {
   width: 100%;
   height: 50%;
+}
+
+@media (max-width: 900px) {
+  .chart-container {
+    min-width: 80%;
+  }
 }
 </style>
