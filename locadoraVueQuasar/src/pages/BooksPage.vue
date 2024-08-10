@@ -167,8 +167,6 @@ onMounted(() => {
     });
 });
 
-const srch = ref('');
-
 const $q = useQuasar();
 
 const showNotification = (type, msg) => {
@@ -190,6 +188,8 @@ const columns = [
 ];
 
 const rows = ref([]);
+
+const srch = ref('');
 
 const getRows = (srch = '') => {
   api.get('/book', { params: { search: srch } })
@@ -261,10 +261,6 @@ const openRegisterDialog = () => {
   dialogs.value.register.visible = true;
 };
 
-const registerAction = () => {
-  createRow(bookToCreate.value);
-};
-
 const createRow = (bookToCreate) => {
   api.post('/book', bookToCreate)
     .then(response => {
@@ -277,6 +273,10 @@ const createRow = (bookToCreate) => {
       showNotification('negative', "Erro ao criar livro!");
       console.log("Erro ao criar livro", error);
     });
+};
+
+const registerAction = () => {
+  createRow(bookToCreate.value);
 };
 
 const bookInforEdit = ref([]);
@@ -360,10 +360,6 @@ const getPublishers = () => {
   })
 }
 
-const onItemClick = (publisherItem) => {
-  idPublisher.value = publisherItem.id;
-}
-
 const editRow = (bookInfor) => {
   api.put('/book', bookInfor)
     .then(response => {
@@ -377,6 +373,10 @@ const editRow = (bookInfor) => {
       console.log(bookInfor);
     });
 };
+
+const onItemClick = (publisherItem) => {
+  idPublisher.value = publisherItem.id;
+}
 
 const performEditAction = (bookInforEdit) => {
   editRow(bookInforEdit);

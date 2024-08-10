@@ -137,8 +137,6 @@ onMounted(() => {
     });
 });
 
-const srch = ref('');
-
 const $q = useQuasar();
 
 const showNotification = (type, msg) => {
@@ -156,6 +154,8 @@ const columns = [
 ];
 
 const rows = ref([]);
+
+const srch = ref('');
 
 const getRows = (srch = '') => {
   api.get('/publisher', { params: { search: srch } })
@@ -225,9 +225,6 @@ const openRegisterDialog = () => {
   dialogs.value.register.visible = true;
 };
 
-const registerAction = () => {
-  createRow(publisherToCreate.value);
-};
 
 const createRow = (publisherToCreate) => {
   api.post('/publisher', publisherToCreate)
@@ -242,6 +239,25 @@ const createRow = (publisherToCreate) => {
   })
 };
 
+const registerAction = () => {
+  createRow(publisherToCreate.value);
+};
+
+const editoraInfor = ref([]);
+
+const showMore = (id) => {
+  api.get('/publisher/' + id)
+    .then(response => {
+      editoraInfor.value = response.data;
+      showNotification('positive', "Dados obtidos com sucesso!");
+      console.log(editoraInfor.value);
+    })
+    .catch(error => {
+      showNotification('negative', "Erro ao obter detalhes da editora...");
+      console.error("Erro ao obter detalhes da editora:", error);
+    });
+}
+
 const editRow = (editoraInfor) => {
   api.put('/publisher', editoraInfor)
     .then(response => {
@@ -252,6 +268,11 @@ const editRow = (editoraInfor) => {
       showNotification('negative', "Erro ao editar...");
       console.log("deunao", error)
     })
+};
+
+const performEditAction = () => {
+  editRow(editoraInfor.value);
+  dialogs.value.edit.visible = false;
 };
 
 const deleteRow = (id) => {
@@ -271,26 +292,6 @@ const deleteRow = (id) => {
 const performDeleteAction = () => {
   const { row } = dialogs.value.delete;
   deleteRow(row.id);
-};
-
-const editoraInfor = ref([]);
-
-const showMore = (id) => {
-  api.get('/publisher/' + id)
-    .then(response => {
-      editoraInfor.value = response.data;
-      showNotification('positive', "Dados obtidos com sucesso!");
-      console.log(editoraInfor.value);
-    })
-    .catch(error => {
-      showNotification('negative', "Erro ao obter detalhes da editora...");
-      console.error("Erro ao obter detalhes da editora:", error);
-    });
-}
-
-const performEditAction = () => {
-  editRow(editoraInfor.value);
-  dialogs.value.edit.visible = false;
 };
 
 const onSubmit = () => {

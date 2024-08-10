@@ -139,8 +139,6 @@ const showNotification = (type, msg) => {
   });
 };
 
-const srch = ref('');
-
 const columns = [
   { name: 'name', required: true, label: 'Nome do usuário', align: 'center', field: row => row.name, format: val => `${val}`},
   { name: 'role', align: 'center', label: 'Permissão', field: 'role'},
@@ -148,6 +146,8 @@ const columns = [
 ]
 
 const rows = ref([]);
+
+const srch = ref('');
 
 const getRows = (srch = '') => {
   api.get('/users', { params: { search: srch } })
@@ -197,6 +197,10 @@ const handleAction = ({ row, icon }) => {
   }
 };
 
+const openRegisterDialog = () => {
+  dialogs.value.register.visible = true;
+};
+
 const userToCreate = ref({
   name: '',
   email: '',
@@ -216,10 +220,6 @@ const createRow = (userToCreate) => {
       showNotification('negative', "Erro ao criar usuário!");
       console.log("Erro ao criar usuário", error);
     });
-};
-
-const openRegisterDialog = () => {
-  dialogs.value.register.visible = true;
 };
 
 const registerAction = (shape) => {
@@ -242,6 +242,8 @@ const showMore = (id) => {
       console.error("Erro ao obter detalhes do usuario:", error);
     });
 };
+
+/* NAO FUNCIONAL */
 
 const editRow = (userInfor) => {
   api.put('/users', userInfor)

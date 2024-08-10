@@ -139,8 +139,6 @@ onMounted(() => {
     });
 });
 
-const srch = ref('');
-
 const $q = useQuasar();
 
 const showNotification = (type, msg) => {
@@ -160,6 +158,8 @@ const columns = [
 ]
 
 const rows = ref([]);
+
+const srch = ref('');
 
 const getRows = (srch = '') => {
   api.get('/renter', { params: { search: srch } })
@@ -218,6 +218,10 @@ const handleAction = ({ row, icon }) => {
   }
 };
 
+const openRegister = () => {
+  dialogs.value.register.visible = true;
+}
+
 const renterToCreate = ref({
   name: '',
   email: '',
@@ -226,13 +230,6 @@ const renterToCreate = ref({
   cpf: ''
 });
 
-const openRegister = () => {
-  dialogs.value.register.visible = true;
-}
-
-const registerAction = () => {
-  createRow(renterToCreate.value);
-};
 
 const createRow = (renterToCreate) => {
   api.post('/renter', renterToCreate)
@@ -246,6 +243,10 @@ const createRow = (renterToCreate) => {
     showNotification('negative', "Erro ao criar locatário!");
     console.log("Erro ao criar locatário", error)
   })
+};
+
+const registerAction = () => {
+  createRow(renterToCreate.value);
 };
 
 const renterInfor = ref([]);
