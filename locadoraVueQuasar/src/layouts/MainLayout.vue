@@ -174,23 +174,29 @@ const miniState = ref(true)
 .whiteFont {
   color: aliceblue;
 }
+
 .bgPadrao {
   background-color: #2c3d47;
 }
+
 .q-item.q-router-link--active,
 .q-item--active {
   color: #00c986;
 }
+
 .flex-column {
   display: flex;
   flex-direction: column;
 }
+
 .full-height {
   height: 100%;
 }
+
 .flex-grow {
   flex-grow: 1;
 }
+
 .logout {
   border-radius: 10px;
 }
@@ -198,6 +204,7 @@ const miniState = ref(true)
 @media (max-width: 600px) {
   .card{
     box-shadow: none;
+    width: 90%;
   }
 
   .bgLayoutLogin {
