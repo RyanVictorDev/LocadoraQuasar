@@ -128,13 +128,7 @@ defineOptions({
 });
 
 onMounted(() => {
-  authenticate()
-    .then(() => {
-      getRows();
-    })
-    .catch(error => {
-      console.error('Erro na autenticação:', error);
-    });
+    getRows();
 });
 
 const $q = useQuasar();
@@ -160,10 +154,8 @@ const srch = ref('');
 const getRows = (srch = '') => {
   api.get('/publisher', { params: { search: srch } })
     .then(response => {
-      if (Array.isArray(response.data.content)) {
-        rows.value = response.data.content;
-        showNotification('positive', "Dados obtidos com sucesso!");
-        console.log("Dados obtidos com sucesso");
+      if (Array.isArray(response.data)) {
+        rows.value = response.data;
       } else {
         console.error('A resposta da API não é um array:', response.data);
         rows.value = [];
@@ -259,7 +251,7 @@ const showMore = (id) => {
 }
 
 const editRow = (editoraInfor) => {
-  api.put('/publisher', editoraInfor)
+  api.put('/publisher/' + editoraInfor.id, editoraInfor)
     .then(response => {
       showNotification('positive', "Editado com sucesso!");
       getRows();

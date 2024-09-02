@@ -54,13 +54,7 @@ defineOptions({
 });
 
 onMounted(() => {
-  authenticate()
-    .then(() => {
-      getRows();
-    })
-    .catch(error => {
-      console.error('Erro na autenticação:', error);
-    });
+    getRows();
 });
 
 const srch = ref('');
@@ -77,10 +71,10 @@ const showNotification = (type, msg) => {
 };
 
 const columns = [
-  { name: 'renterName', align: 'center', label: 'Locatário', field: 'renterName' },
-  { name: 'bookName', align: 'center', label: 'Livro', field: 'bookName' },
+  { name: 'renter.name', align: 'center', label: 'Locatário', field: row => row.renter.name },
+  { name: 'book.name', align: 'center', label: 'Livro', field: row => row.book.name },
   { name: 'rentDate', align: 'center', label: 'Alugado', field: 'rentDate' },
-  { name: 'deadLineDate', align: 'center', label: 'Devolução', field: 'deadLineDate' },
+  { name: 'deadLine', align: 'center', label: 'Devolução', field: 'deadLine' },
   { name: 'status', align: 'center', label: 'Status', field: 'status' },
   { name: 'actions', align: 'center', label: 'Ações', field: 'actions' },
 ];
@@ -90,10 +84,8 @@ const rows = ref([]);
 const getRows = (srch = '') => {
   api.get('/rent', { params: { search: srch } })
     .then(response => {
-      if (Array.isArray(response.data.content)) {
-        rows.value = response.data.content;
-        console.log("Dados obtidos com sucesso");
-        showNotification('positive', "Dados obtidos com sucesso!");
+      if (Array.isArray(response.data)) {
+        rows.value = response.data;
       } else {
         console.error('A resposta da API não é um array:', response.data);
         rows.value = [];

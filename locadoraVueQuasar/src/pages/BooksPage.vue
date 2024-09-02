@@ -107,7 +107,7 @@
               <q-input v-model="bookInforEdit.author" label="Autor" filled lazy-rules/>
               <q-input v-model="bookInforEdit.totalQuantity" label="Estoque" filled lazy-rules/>
               <q-input v-model="bookInforEdit.launchDate" label="Data de lançamento" type="date" filled lazy-rules/>
-              <q-input v-model="idPublisher" label="Id da editora" filled lazy-rules/>
+              <q-input v-model="bookInforEdit.publisherId" label="Id da editora" filled lazy-rules/>
 
               <q-btn-dropdown color="primary" label="Escolha a editora" class="q-mt-md">
                 <q-list v-for="publisherItem in publishers" :key="publisherItem.name">
@@ -156,15 +156,9 @@ defineOptions({
 });
 
 onMounted(() => {
-  authenticate()
-    .then(() => {
-      getRows();
-      getPublishers();
-      getRents();
-    })
-    .catch(error => {
-      console.error('Erro na autenticação:', error);
-    });
+    getRows();
+    getPublishers();
+    getRents();
 });
 
 const $q = useQuasar();
@@ -182,7 +176,7 @@ const columns = [
   { name: 'id', align: 'center', label: 'Id', field: 'id'},
   { name: 'title', required: true, label: 'Título', align: 'center', field: row => row.name, format: val => `${val}`},
   { name: 'author', align: 'center', label: 'Autor', field: 'author'},
-  { name: 'availableQuantity', align: 'center', label: 'Disponíveis', field: 'availableQuantity'},
+  { name: 'totalQuantity', align: 'center', label: 'Disponíveis', field: 'totalQuantity'},
   { name: 'inUseQuantity', align: 'center', label: 'Alugados', field: 'inUseQuantity'},
   { name: 'actions', align: 'center', label: 'Ações', field: 'actions'},
 ];
@@ -194,15 +188,12 @@ const srch = ref('');
 const getRows = (srch = '') => {
   api.get('/book', { params: { search: srch } })
     .then(response => {
-      if (Array.isArray(response.data.content)) {
-        rows.value = response.data.content;
-        showNotification('positive', "Dados obtidos com sucesso");
-        console.log("Dados obtidos com sucesso");
+      if (Array.isArray(response.data)) {
+        rows.value = response.data;
       } else {
         console.error('A resposta da API não é um array:', response.data);
         rows.value = [];
       }
-      console.log('Resposta da API:', response.data);
     })
     .catch(error => {
       showNotification('negative', "Erro ao obter dados!");
@@ -290,10 +281,11 @@ const showMore = (id) => {
       author: response.data.author,
       totalQuantity: response.data.totalQuantity,
       launchDate: response.data.launchDate,
-      publisherId: idPublisher
+      publisherId: response.data.publisher.id
     }
 
     bookInforEdit.value = filteredData;
+    console.log(response.data.publisher.id)
     showNotification('positive', "Dados obtidos com sucesso!");
     })
     .catch(error => {
@@ -308,7 +300,7 @@ const idRenter = ref('')
 const getRents = () => {
   api.get('/renter')
   .then(response => {
-    renters.value = response.data.content
+    renters.value = response.data
     console.log("SHOW", renters, response)
   })
   .catch(error => {
@@ -347,12 +339,12 @@ const rentAction = (id) => {
 };
 
 const publishers = ref([])
-const idPublisher = ref('')
+const publisherId = ref('')
 
 const getPublishers = () => {
   api.get('/publisher')
   .then(response => {
-    publishers.value = response.data.content
+    publishers.value = response.data
     console.log("SHOW", publishers, response)
   })
   .catch(error => {
@@ -361,7 +353,7 @@ const getPublishers = () => {
 }
 
 const editRow = (bookInfor) => {
-  api.put('/book', bookInfor)
+  api.put('/book/'+ bookInfor.id, bookInfor)
     .then(response => {
       console.log("Sucesso ao editar", response);
       showNotification('positive', "Sucesso ao editar livro!");
@@ -375,7 +367,7 @@ const editRow = (bookInfor) => {
 };
 
 const onItemClick = (publisherItem) => {
-  idPublisher.value = publisherItem.id;
+  bookInforEdit.value.publisherId = publisherItem.id;
 }
 
 const performEditAction = (bookInforEdit) => {

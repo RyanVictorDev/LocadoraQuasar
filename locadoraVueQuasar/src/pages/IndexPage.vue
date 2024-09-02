@@ -31,8 +31,8 @@ const srch = ref('');
 
 const columns = [
   { name: 'name', required: true, label: 'Locatário', align: 'center', field: row => row.name, format: val => `${val}`},
-  { name: 'totalRents', align: 'center', label: 'Total de empréstimos', field: 'totalRents' },
-  { name: 'activeRents', align: 'center', label: 'Aluguéis ativos', field: 'activeRents' },
+  { name: 'rentsQuantity', align: 'center', label: 'Total de empréstimos', field: 'rentsQuantity' },
+  { name: 'rentsActive', align: 'center', label: 'Aluguéis ativos', field: 'rentsActive' },
 ];
 
 const rows = ref([]);
@@ -47,23 +47,15 @@ const showNotification = (type, msg) => {
 };
 
 onMounted(() => {
-  authenticate()
-    .then(() => {
       getRows();
       console.log("Sucesso ao autenticar");
-    })
-    .catch(error => {
-      console.error('Erro na autenticação:', error);
-    });
 });
 
 const getRows = (srch = '') => {
-  api.get('/rent/renters')
+  api.get('/dashboard/rentsPerRenter')
     .then(response => {
-      if (Array.isArray(response.data.content)) {
-        rows.value = response.data.content;
-        showNotification('positive', "Dados obtidos com sucesso!");
-        console.log("Dados obtidos com sucesso");
+      if (Array.isArray(response.data)) {
+        rows.value = response.data;
       } else {
         console.error('A resposta da API não é um array:', response.data);
         rows.value = [];
@@ -75,8 +67,6 @@ const getRows = (srch = '') => {
       console.error("Erro ao obter dados:", error);
     });
 };
-
-
 </script>
 
 <style scoped>

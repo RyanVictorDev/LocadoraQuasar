@@ -130,13 +130,7 @@ defineOptions({
 });
 
 onMounted(() => {
-  authenticate()
-    .then(() => {
-      getRows();
-    })
-    .catch(error => {
-      console.error('Erro na autenticação:', error);
-    });
+    getRows();
 });
 
 const $q = useQuasar();
@@ -164,15 +158,12 @@ const srch = ref('');
 const getRows = (srch = '') => {
   api.get('/renter', { params: { search: srch } })
     .then(response => {
-      if (Array.isArray(response.data.content)) {
-        rows.value = response.data.content;
-        showNotification('positive', "Dados obtidos com sucesso!");
-        console.log("Dados obtidos com sucesso");
+      if (Array.isArray(response.data)) {
+        rows.value = response.data;
       } else {
         console.error('A resposta da API não é um array:', response.data);
         rows.value = [];
       }
-      console.log('Resposta da API:', response.data);
     })
     .catch(error => {
       showNotification('negative', "Erro ao obter dados!");
@@ -265,7 +256,7 @@ const showMore = (id) => {
 };
 
 const editRow = (renterInfor) => {
-  api.put('/renter', renterInfor)
+  api.put('/renter/' + renterInfor.id, renterInfor)
     .then(response => {
       console.log("Sucesso ao editar", response);
       showNotification('positive', "Sucesso ao editar!");

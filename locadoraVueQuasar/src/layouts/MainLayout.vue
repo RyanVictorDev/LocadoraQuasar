@@ -1,5 +1,5 @@
 <template>
-  <q-layout v-if="!log" class="bgLayoutLogin flex">
+  <q-layout v-if="!token" class="bgLayoutLogin flex">
     <div class="q-pa-lg q-mx-auto card" style="max-width: 400px;">
       <div class="form">
           <q-img
@@ -69,7 +69,7 @@
           <SidebarComponent v-for="link in linksList" :key="link.title" v-bind="link" />
         </q-list>
         <div class="flex-grow"></div>
-        <q-item clickable exact class="q-mx-auto q-mb-sm logout" @click="log = false">
+        <q-item clickable exact class="q-mx-auto q-mb-sm logout" @click="logout">
           <q-item-section avatar>
             <q-icon name="logout" />
           </q-item-section>
@@ -89,6 +89,7 @@
 <script setup>
 import { useQuasar } from 'quasar';
 import { ref } from 'vue'
+import { authenticate } from 'boot/axios';
 import axios from 'axios'
 import SidebarComponent from 'src/components/SidebarComponent.vue'
 
@@ -106,25 +107,21 @@ const showNotification = (type, msg) => {
     timeout: 3000
   });
 };
-
-const log = ref(false)
+const token = localStorage.getItem('authToken');
 const name = ref(null)
 const password = ref(null)
 
 const onSubmit = () => {
   if (name.value && password.value) {
-    axios.post("https://livraria-api.altislabtech.com.br/auth/login", {
-      username: name.value,
-      password: password.value
-    })
-    .then(response => {
-      log.value = true
-      name.value = null
-      password.value = null
-    })
-    .catch(error => {
-      showNotification('negative', "Algo deu errado!");
-    })
+    authenticate(name.value, password.value)
+      .then(() => {
+        name.value = null
+        password.value = null
+        window.location.reload();
+      })
+      .catch(() => {
+        showNotification('negative', "Algo deu errado!");
+      });
   } else {
     showNotification('negative', "Por favor, preencha todos os campos corretamente");
   }
@@ -134,6 +131,11 @@ const onReset = () => {
   name.value = null
   password.value = null
 }
+
+const logout = () => {
+  localStorage.removeItem('authToken');
+  window.location.reload();
+};
 
 const linksList = [
   { title: 'Relatório geral', caption: '', icon: 'moving', route: { name: 'home' } },

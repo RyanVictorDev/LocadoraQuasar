@@ -119,13 +119,7 @@ defineOptions({
 });
 
 onMounted(() => {
-  authenticate()
-    .then(() => {
-      getRows();
-    })
-    .catch(error => {
-      console.error('Erro na autenticação:', error);
-    });
+  getRows();
 });
 
 const $q = useQuasar();
@@ -150,12 +144,10 @@ const rows = ref([]);
 const srch = ref('');
 
 const getRows = (srch = '') => {
-  api.get('/users', { params: { search: srch } })
+  api.get('/user', { params: { search: srch } })
     .then(response => {
-      rows.value = response.data.content;
-      showNotification('positive', "Dados obtidos com sucesso");
-      console.log("Dados obtidos com sucesso");
-      console.log('Resposta da API:', response.data.content);
+      rows.value = response.data;
+      console.log(response)
     })
     .catch(error => {
       showNotification('negative', "Erro ao obter dados!");
@@ -209,7 +201,7 @@ const userToCreate = ref({
 });
 
 const createRow = (userToCreate) => {
-  api.post('/users', userToCreate)
+  api.post('/user', userToCreate)
     .then(response => {
       console.log("Sucesso ao criar novo usuário", response);
       dialogs.value.register.visible = false;
@@ -231,7 +223,7 @@ const registerAction = (shape) => {
 const userInfor = ref([]);
 
 const showMore = (id) => {
-  api.get('/users/' + id)
+  api.get('/user/' + id)
     .then(response => {
       userInfor.value = response.data;
       console.log(userInfor.value);
@@ -246,7 +238,7 @@ const showMore = (id) => {
 /* NAO FUNCIONAL */
 
 const editRow = (userInfor) => {
-  api.put('/users', userInfor)
+  api.put('/user', userInfor)
     .then(response => {
       console.log("Sucesso ao editar", response);
       showNotification('positive', "Sucesso ao editar!");

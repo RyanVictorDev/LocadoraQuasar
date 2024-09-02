@@ -35,33 +35,12 @@ const mostRented2 = ref('');
 const mostRented3 = ref('');
 
 
-const getRents1 = async () => {
+const getRents = async () => {
   try {
-    await authenticate();
-    const response = await api.get('/rent/most-rented/1');
-    mostRented1.value = response.data;
-  } catch (error) {
-    showNotification('negative', "Erro ao obter dados!");
-    console.error("Erro ao obter dados:", error);
-  }
-};
-
-const getRents2 = async () => {
-  try {
-    await authenticate();
-    const response = await api.get('/rent/most-rented/2');
-    mostRented2.value = response.data;
-  } catch (error) {
-    showNotification('negative', "Erro ao obter dados!");
-    console.error("Erro ao obter dados:", error);
-  }
-};
-
-const getRents3 = async () => {
-  try {
-    await authenticate();
-    const response = await api.get('/rent/most-rented/3');
-    mostRented3.value = response.data;
+    const response = await api.get('/dashboard/bookMoreRented');
+    mostRented1.value = response.data[0];
+    mostRented2.value = response.data[1];
+    mostRented3.value = response.data[2];
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
     console.error("Erro ao obter dados:", error);
@@ -69,19 +48,16 @@ const getRents3 = async () => {
 };
 
 onMounted( async () => {
-  await getRents1();
-  await getRents2();
-  await getRents3();
-
+  await getRents();
 
   const ctx2 = document.getElementById('LivrosChart').getContext('2d');
   new Chart(ctx2, {
     type: 'pie',
     data: {
-      labels: [mostRented1.value.bookName, mostRented2.value.bookName, mostRented3.value.bookName],
+      labels: [mostRented1.value.name, mostRented2.value.name, mostRented3.value.name],
       datasets: [{
         label: 'Livros mais alugados',
-        data: [mostRented1.value.rentedNumber, mostRented2.value.rentedNumber, mostRented3.value.rentedNumber],
+        data: [mostRented1.value.totalRents, mostRented2.value.totalRents, mostRented3.value.totalRents],
         backgroundColor: ['#509358', '#B22222', '#46769A'],
         borderWidth: 0
       }]

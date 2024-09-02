@@ -19,30 +19,24 @@ defineOptions({
 });
 
 const rentsQtd = ref(0);
-const inTime = ref(0);
+const late = ref(0);
 const delivered = ref(0);
 const delayed = ref(0);
 
 const getRents = async () => {
   try {
-    await authenticate();
-    const response = await api.get('/rent');
-    rentsQtd.value = response.data.totalElements;
+    const response = await api.get('/dashboard/rentsQuantity');
+    rentsQtd.value = response.data;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
     console.error("Erro ao obter dados:", error);
   }
 };
 
-const getRentsInTime = async () => {
+const getRentsLate = async () => {
   try {
-    await authenticate();
-    const response = await api.get('/rent', {
-      params: {
-        status: 'IN_TIME'
-      }
-    });
-    inTime.value = response.data.totalElements;
+    const response = await api.get('/dashboard/rentsLateQuantity');
+    late.value = response.data;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
     console.error("Erro ao obter dados:", error);
@@ -51,13 +45,8 @@ const getRentsInTime = async () => {
 
 const getRentsDelivered = async () => {
   try {
-    await authenticate();
-    const response = await api.get('/rent', {
-      params: {
-        status: 'DELIVERED'
-      }
-    });
-    delivered.value = response.data.totalElements;
+    const response = await api.get('/dashboard/deliveredInTimeQuantity');
+    delivered.value = response.data;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
     console.error("Erro ao obter dados:", error);
@@ -66,13 +55,8 @@ const getRentsDelivered = async () => {
 
 const getRentsDelayed = async () => {
   try {
-    await authenticate();
-    const response = await api.get('/rent', {
-      params: {
-        status: 'DELAYED'
-      }
-    });
-    delayed.value = response.data.totalElements;
+    const response = await api.get('/dashboard/deliveredWithDelayQuantity');
+    delayed.value = response.data;
   } catch (error) {
     showNotification('negative', "Erro ao obter dados!");
     console.error("Erro ao obter dados:", error);
@@ -81,7 +65,7 @@ const getRentsDelayed = async () => {
 
 onMounted(async () => {
   await getRents();
-  await getRentsInTime();
+  await getRentsLate();
   await getRentsDelivered();
   await getRentsDelayed();
 
@@ -92,7 +76,7 @@ onMounted(async () => {
       labels: ['Alugados', 'Atrasados', 'Devolvidos no prazo', 'Devolvidos fora do prazo'],
       datasets: [{
         label: 'Relação de livros',
-        data: [rentsQtd.value, inTime.value, delivered.value, delayed.value],
+        data: [rentsQtd.value, late.value, delivered.value, delayed.value],
         backgroundColor: ['#509358', '#B22222', '#46769A', '#C65F15'],
         borderWidth: 0,
         borderRadius: 5
